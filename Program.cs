@@ -95,7 +95,7 @@ namespace Ascii3DRenderer
                 float scaleMax = 1.0f;
                 float pulseFrequency1 = 0.5f;
                 float pulseFrequency2 = 1.0f;
-                float pointLightRange = 100f;
+                float pointLightRange = 10f;
 
                 #endregion
 
@@ -177,7 +177,7 @@ namespace Ascii3DRenderer
                     new Light(
                         type: Light.LightType.Point,
                         positionOrDirection: new Vector3D(2, 0, 0),
-                        intensity: 100.0f,
+                        intensity: 1.0f,
                         range: pointLightRange
                     )
                 );
