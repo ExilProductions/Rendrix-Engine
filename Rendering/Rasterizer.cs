@@ -1,10 +1,13 @@
-﻿using System;
+﻿
+using System;
+using System.Collections.Generic;
 using Ascii3DRenderer.Mathematics;
+using Ascii3DRenderer.Models;
 
 namespace Ascii3DRenderer.Rendering
 {
     /// <summary>
-    /// Handles rasterization of triangles onto a screen buffer.
+    /// Handles rasterization of triangles onto a screen buffer with per-pixel lighting.
     /// </summary>
     public class Rasterizer
     {
@@ -13,6 +16,7 @@ namespace Ascii3DRenderer.Rendering
         public int Width { get; }
         public int Height { get; }
         private readonly string asciiChars;
+        private const float FalloffConstant = 0.1f;
 
         public Rasterizer(int width, int height, string asciiChars)
         {
@@ -74,6 +78,87 @@ namespace Ascii3DRenderer.Rendering
                     }
                 }
             }
+        }
+
+        public void RasterizeTriangleWithLighting(
+            Vector2D p0, Vector2D p1, Vector2D p2,
+            float z0, float z1, float z2,
+            Vector3D worldPos0, Vector3D worldPos1, Vector3D worldPos2,
+            Vector3D normal0, Vector3D normal1, Vector3D normal2,
+            List<Light> lights, float ambientStrength, string asciiChars)
+        {
+            float minX = Math.Min(p0.X, Math.Min(p1.X, p2.X));
+            float maxX = Math.Max(p0.X, Math.Max(p1.X, p2.X));
+            float minY = Math.Min(p0.Y, Math.Min(p1.Y, p2.Y));
+            float maxY = Math.Max(p0.Y, Math.Max(p1.Y, p2.Y));
+
+            int startI = Math.Max(0, (int)Math.Floor(minX));
+            int endI = Math.Min(Width - 1, (int)Math.Ceiling(maxX));
+            int startJ = Math.Max(0, (int)Math.Floor(minY));
+            int endJ = Math.Min(Height - 1, (int)Math.Ceiling(maxY));
+
+            for (int j = startJ; j <= endJ; j++)
+            {
+                for (int i = startI; i <= endI; i++)
+                {
+                    Vector2D p = new Vector2D(i + 0.5f, j + 0.5f);
+                    float area = (p1.Y - p2.Y) * (p0.X - p2.X) + (p2.X - p1.X) * (p0.Y - p2.Y);
+                    if (Math.Abs(area) < 1e-6f) continue;
+
+                    float u = ((p1.Y - p2.Y) * (p.X - p2.X) + (p2.X - p1.X) * (p.Y - p2.Y)) / area;
+                    float v = ((p2.Y - p0.Y) * (p.X - p2.X) + (p0.X - p2.X) * (p.Y - p2.Y)) / area;
+                    float w = 1 - u - v;
+
+                    if (u >= 0 && v >= 0 && w >= 0)
+                    {
+                        float z = u * z0 + v * z1 + w * z2;
+                        if (z < zBuffer[j, i])
+                        {
+                            // Interpolate world position and normal for this pixel
+                            Vector3D worldPos = worldPos0 * u + worldPos1 * v + worldPos2 * w;
+                            Vector3D normal = (normal0 * u + normal1 * v + normal2 * w).Normalized;
+
+                            // Calculate per-pixel lighting
+                            float brightness = CalculateLighting(worldPos, normal, lights, ambientStrength);
+                            brightness = Math.Clamp(brightness, 0, 1);
+
+                            char asciiChar = asciiChars[(int)(brightness * (asciiChars.Length - 1))];
+
+                            zBuffer[j, i] = z;
+                            screenBuffer[j, i] = asciiChar;
+                        }
+                    }
+                }
+            }
+        }
+
+        private float CalculateLighting(Vector3D worldPos, Vector3D normal, List<Light> lights, float ambientStrength)
+        {
+            float brightness = ambientStrength;
+
+            foreach (var light in lights)
+            {
+                float diffuse = 0;
+                if (light.Type == Light.LightType.Directional)
+                {
+                    diffuse = Math.Max(0, Vector3D.Dot(normal, light.Direction)) * light.Intensity;
+                }
+                else // Point light
+                {
+                    Vector3D lightDir = (light.Position - worldPos);
+                    float distance = lightDir.Length;
+
+                    if (distance <= light.Range)
+                    {
+                        lightDir = lightDir.Normalized;
+                        float falloff = light.Intensity / (distance * distance + FalloffConstant);
+                        diffuse = Math.Max(0, Vector3D.Dot(normal, lightDir)) * falloff;
+                    }
+                }
+                brightness += diffuse;
+            }
+
+            return brightness;
         }
 
         public string GetFrame()
