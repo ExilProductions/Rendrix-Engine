@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ascii3DRenderer.Mathematics;
+using RendrixEngine.Mathematics;
 
-namespace Ascii3DRenderer.Models
+namespace RendrixEngine.Models
 {
     /// <summary>
     /// Represents a 3D mesh with vertices, triangle indices, and now, vertex normals.
@@ -12,7 +12,7 @@ namespace Ascii3DRenderer.Models
     public class Mesh
     {
         public Vector3D[] Vertices { get; }
-        public Vector3D[] Normals { get; } // New: Array to store vertex normals
+        public Vector3D[] Normals { get; } // Array to store vertex normals
         public int[][] Triangles { get; }
 
         public Mesh(Vector3D[] vertices, Vector3D[] normals, int[][] triangles) // Modified constructor
@@ -68,10 +68,6 @@ namespace Ascii3DRenderer.Models
                 new Vector3D(-s, s, s)    // 7
             };
 
-            // Normals (Approximated for a cube - each vertex belongs to 3 faces)
-            // For a perfect cube, you'd want flat normals per face or more sophisticated averaging.
-            // For general meshes, these would be provided by a model loader.
-            // Here, we provide "smoothed" normals for demonstration.
             Vector3D[] normals = new Vector3D[]
             {
                 new Vector3D(-1, -1, -1).Normalized, // 0
@@ -85,7 +81,6 @@ namespace Ascii3DRenderer.Models
             };
 
 
-            // Triangle indices (ensuring consistent winding order, e.g., counter-clockwise)
             int[][] triangles = new int[][]
             {
                 // Front face
@@ -115,7 +110,7 @@ namespace Ascii3DRenderer.Models
         public static Mesh CreateSphere(float radius, int latitudeBands = 20, int longitudeBands = 20)
         {
             var vertices = new List<Vector3D>();
-            var normals = new List<Vector3D>(); // New: Store normals for sphere
+            var normals = new List<Vector3D>(); //Store normals for sphere
             var triangles = new List<int[]>();
 
             for (int lat = 0; lat <= latitudeBands; lat++)
@@ -134,9 +129,10 @@ namespace Ascii3DRenderer.Models
                     float y = (float)(radius * cosTheta);
                     float z = (float)(radius * sinPhi * sinTheta);
 
+
                     Vector3D vertex = new Vector3D(x, y, z);
                     vertices.Add(vertex);
-                    normals.Add(vertex.Normalized); // For a sphere, the normalized vertex position is its normal
+                    normals.Add(vertex.Normalized); // For a sphere the normalized vertex position is its normal
                 }
             }
 

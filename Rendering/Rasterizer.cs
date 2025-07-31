@@ -1,10 +1,10 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using Ascii3DRenderer.Mathematics;
-using Ascii3DRenderer.Models;
+using RendrixEngine.Mathematics;
+using RendrixEngine.Models;
 
-namespace Ascii3DRenderer.Rendering
+namespace RendrixEngine.Rendering
 {
     /// <summary>
     /// Handles rasterization of triangles onto a screen buffer with per-pixel lighting.

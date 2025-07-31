@@ -1,11 +1,11 @@
-﻿using Ascii3DRenderer.Mathematics;
+﻿using RendrixEngine.Mathematics;
 
-namespace Ascii3DRenderer.Models
+namespace RendrixEngine.Models
 {
     /// <summary>
     /// Represents a light source in the scene, either a point light or directional light, with scalar intensity and optional range for point lights.
     /// </summary>
-    public class Light
+    public class Light : Component
     {
         public enum LightType
         {
@@ -13,11 +13,13 @@ namespace Ascii3DRenderer.Models
             Directional
         }
 
-        public LightType Type { get; }
-        public Vector3D Position { get; } // Used for point lights
-        public Vector3D Direction { get; } // Used for directional lights
-        public float Intensity { get; } // Light strength
-        public float Range { get; } // Maximum effective distance for point lights
+        public LightType Type { get; set; }
+        public Vector3D Position { get; set; } // Used for point lights
+        public Vector3D Direction { get; set; } // Used for directional lights
+        public float Intensity { get; set; } // Light strength
+        public float Range { get; set; } // Maximum effective distance for point lights
+
+        public Light() { }
 
         public Light(LightType type, Vector3D positionOrDirection, float intensity, float range = float.PositiveInfinity)
         {

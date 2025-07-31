@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Ascii3DRenderer.Mathematics;
+using RendrixEngine.Mathematics;
 
-namespace Ascii3DRenderer.Models
+namespace RendrixEngine.Models
 {
     /// <summary>
     /// Represents a transformation for a 3D object, including position, rotation, and scale.

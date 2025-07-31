@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using Ascii3DRenderer.Mathematics;
+using RendrixEngine.Mathematics;
 
-namespace Ascii3DRenderer.Models
+namespace RendrixEngine.Models
 {
     /// <summary>
     /// Represents a node in the scene graph, combining a transform with an optional mesh and light.
     /// </summary>
     public class SceneNode
     {
+        public List<Component> Components { get; }
         public Transform Transform { get; }
-        public Mesh? Mesh { get; }
-        public Light? Light { get; }
         public List<SceneNode> Children { get; } = new();
 
-        public SceneNode(Transform transform, Mesh? mesh = null, Light? light = null)
+        public SceneNode()
         {
-            Transform = transform ?? throw new ArgumentNullException(nameof(transform));
-            Mesh = mesh;
-            Light = light;
+            Transform = new Transform();
+            Components = new List<Component>();
         }
 
         /// <summary>
@@ -45,6 +43,34 @@ namespace Ascii3DRenderer.Models
                 throw new InvalidOperationException("Child does not belong to this parent.");
             child.Transform.Parent = null;
             Children.Remove(child);
+        }
+
+        public T AddComponent<T>() where T : Component, new()
+        {
+            var component = new T();
+            Components.Add(component);
+            component.OnEnable(); // Call OnEnable when added
+            return component;
+        }
+
+        public T? GetComponent<T>() where T : Component
+        {
+            foreach (var component in Components)
+            {
+                if (component is T typedComponent)
+                    return typedComponent;
+            }
+            return null; // Return null if no component of type T is found
+        }
+
+        public void RemoveComponent<T>() where T : Component
+        {
+            var component = GetComponent<T>();
+            if (component != null)
+            {
+                Components.Remove(component);
+                component.OnDisable(); // Call OnDisable when removed
+            }
         }
     }
 }

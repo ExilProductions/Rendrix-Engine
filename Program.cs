@@ -2,11 +2,11 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using Ascii3DRenderer.Mathematics;
-using Ascii3DRenderer.Models;
-using Ascii3DRenderer.Rendering;
+using RendrixEngine.Mathematics;
+using RendrixEngine.Models;
+using RendrixEngine.Rendering;
 
-namespace Ascii3DRenderer
+namespace RendrixEngine
 {
     class Program
     {
@@ -95,7 +95,6 @@ namespace Ascii3DRenderer
                 float scaleMax = 1.0f;
                 float pulseFrequency1 = 0.5f;
                 float pulseFrequency2 = 1.0f;
-                float pointLightRange = 10f;
 
                 #endregion
 
@@ -148,39 +147,26 @@ namespace Ascii3DRenderer
 
                 #region Scene Hierarchy Creation
 
-                var rootNode = new SceneNode(new Transform());
+                var rootNode = new SceneNode();
                 var cubeMesh = Mesh.CreateCube(2f);
 
                 // Create two cubes as children of the root node
-                var cube1 = new SceneNode(
-                    new Transform
-                    {
-                        Position = new Vector3D(1.5f, 0, 0) // Offset to the right
-                    },
-                    cubeMesh
-                );
-                var cube2 = new SceneNode(
-                    new Transform
-                    {
-                        Position = new Vector3D(-1.5f, 0, 0) // Offset to the left
-                    },
-                    cubeMesh
-                );
-
+                var cube1 = new SceneNode();
+                cube1.Transform.Position = new Vector3D(1.5f, 0, 0);
+                MeshRenderer cube1Renderer = cube1.AddComponent<MeshRenderer>();
+                cube1Renderer.Mesh = cubeMesh;
+                var cube2 = new SceneNode();
+                cube2.Transform.Position = new Vector3D(-1.5f, 0, 0);
+                MeshRenderer cube2Renderer = cube2.AddComponent<MeshRenderer>();
+                cube2Renderer.Mesh = cubeMesh;
                 // Create a point light orbiting the origin
-                var lightNode = new SceneNode(
-                    new Transform
-                    {
-                        Position = new Vector3D(2, 0, 0) // Start at right
-                    },
-                    null,
-                    new Light(
-                        type: Light.LightType.Point,
-                        positionOrDirection: new Vector3D(2, 0, 0),
-                        intensity: 1.0f,
-                        range: pointLightRange
-                    )
-                );
+                var lightNode = new SceneNode();
+                lightNode.Transform.Position = new Vector3D(2, 0, 0); // Start at right
+                Light light = lightNode.AddComponent<Light>();
+                light.Type = Light.LightType.Point;
+                light.Intensity = 1;
+                light.Range = 5;
+
 
                 rootNode.AddChild(cube1);
                 rootNode.AddChild(cube2);

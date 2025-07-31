@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Ascii3DRenderer.Mathematics
+namespace RendrixEngine.Mathematics
 {
     /// <summary>
     /// Represents a 3D vector with x, y, z components.

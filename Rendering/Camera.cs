@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Numerics;
-using Ascii3DRenderer.Mathematics;
+using RendrixEngine.Mathematics;
 
-namespace Ascii3DRenderer.Rendering
+namespace RendrixEngine.Rendering
 {
     /// <summary>
     /// Represents a camera with position, target, and projection parameters.

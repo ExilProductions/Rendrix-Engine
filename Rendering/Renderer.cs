@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
-using Ascii3DRenderer.Mathematics;
-using Ascii3DRenderer.Models;
+using RendrixEngine.Mathematics;
+using RendrixEngine.Models;
 
-namespace Ascii3DRenderer.Rendering
+namespace RendrixEngine.Rendering
 {
     /// <summary>
     /// Main renderer class that handles both rendering pipeline and rasterization with per-pixel lighting.
@@ -68,10 +68,13 @@ namespace Ascii3DRenderer.Rendering
 
         private void CollectLights(SceneNode node, List<Light> lights)
         {
-            if (node.Light != null)
+            node.Components.ForEach(c =>
             {
-                lights.Add(node.Light);
-            }
+                if (c is Light light)
+                {
+                    lights.Add(light);
+                }
+            });
             foreach (var child in node.Children)
             {
                 CollectLights(child, lights);
@@ -80,44 +83,47 @@ namespace Ascii3DRenderer.Rendering
 
         private void RenderNode(SceneNode node, List<Light> lights)
         {
-            if (node.Mesh != null)
+            node.Components.ForEach(c =>
             {
-                Matrix4x4 modelView = node.Transform.WorldMatrix * camera.ViewMatrix;
-
-                foreach (var tri in node.Mesh.Triangles)
+                if (c is MeshRenderer meshRenderer)
                 {
-                    // Transform vertices to camera space
-                    Vector3D v0 = modelView.Transform(node.Mesh.Vertices[tri[0]]);
-                    Vector3D v1 = modelView.Transform(node.Mesh.Vertices[tri[1]]);
-                    Vector3D v2 = modelView.Transform(node.Mesh.Vertices[tri[2]]);
+                    Matrix4x4 modelView = node.Transform.WorldMatrix * camera.ViewMatrix;
 
-                    // Backface culling
-                    Vector3D normalCamera = Vector3D.Cross(v1 - v0, v2 - v0).Normalized;
-                    if (Vector3D.Dot(normalCamera, v0) > 0)
-                        continue;
+                    foreach (var tri in meshRenderer.Mesh.Triangles)
+                    {
+                        // Transform vertices to camera space
+                        Vector3D v0 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[0]]);
+                        Vector3D v1 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[1]]);
+                        Vector3D v2 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[2]]);
 
-                    // Transform vertices to world space for lighting
-                    Vector3D v0World = node.Transform.WorldMatrix.Transform(node.Mesh.Vertices[tri[0]]);
-                    Vector3D v1World = node.Transform.WorldMatrix.Transform(node.Mesh.Vertices[tri[1]]);
-                    Vector3D v2World = node.Transform.WorldMatrix.Transform(node.Mesh.Vertices[tri[2]]);
+                        // Backface culling
+                        Vector3D normalCamera = Vector3D.Cross(v1 - v0, v2 - v0).Normalized;
+                        if (Vector3D.Dot(normalCamera, v0) > 0)
+                            continue;
 
-                    // Calculate world space normal for this triangle
-                    Vector3D normalWorld = Vector3D.Cross(v1World - v0World, v2World - v0World).Normalized;
+                        // Transform vertices to world space for lighting
+                        Vector3D v0World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[0]]);
+                        Vector3D v1World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[1]]);
+                        Vector3D v2World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[2]]);
 
-                    // Project to screen space
-                    Vector2D p0 = Project(v0);
-                    Vector2D p1 = Project(v1);
-                    Vector2D p2 = Project(v2);
+                        // Calculate world space normal for this triangle
+                        Vector3D normalWorld = Vector3D.Cross(v1World - v0World, v2World - v0World).Normalized;
 
-                    // Rasterize with per-pixel lighting
-                    RasterizeTriangleWithLighting(
-                        p0, p1, p2,
-                        v0.Z, v1.Z, v2.Z,
-                        v0World, v1World, v2World,
-                        normalWorld, normalWorld, normalWorld, // Using same normal for all vertices (flat shading)
-                        lights);
+                        // Project to screen space
+                        Vector2D p0 = Project(v0);
+                        Vector2D p1 = Project(v1);
+                        Vector2D p2 = Project(v2);
+
+                        // Rasterize with per-pixel lighting
+                        RasterizeLitTriangle(
+                            p0, p1, p2,
+                            v0.Z, v1.Z, v2.Z,
+                            v0World, v1World, v2World,
+                            normalWorld, normalWorld, normalWorld, // Using same normal for all vertices (flat shading)
+                            lights);
+                    }
                 }
-            }
+            });
 
             // Recursively render children
             foreach (var child in node.Children)
@@ -136,7 +142,7 @@ namespace Ascii3DRenderer.Rendering
             );
         }
 
-        private void RasterizeTriangleWithLighting(
+        private void RasterizeLitTriangle(
             Vector2D p0, Vector2D p1, Vector2D p2,
             float z0, float z1, float z2,
             Vector3D worldPos0, Vector3D worldPos1, Vector3D worldPos2,

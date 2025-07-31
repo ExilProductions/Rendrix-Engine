@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Ascii3DRenderer.Mathematics
+namespace RendrixEngine.Mathematics
 {
     /// <summary>
     /// Extensions for Matrix4x4 to support transformation operations.

@@ -1,4 +1,4 @@
-﻿namespace Ascii3DRenderer.Mathematics
+﻿namespace RendrixEngine.Mathematics
 {
     /// <summary>
     /// Represents a 2D vector with x, y components.
