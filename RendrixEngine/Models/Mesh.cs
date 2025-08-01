@@ -1,25 +1,18 @@
-﻿// Mesh.cs
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using RendrixEngine.Mathematics;
+﻿using RendrixEngine.Mathematics;
 
 namespace RendrixEngine.Models
 {
-    /// <summary>
-    /// Represents a 3D mesh with vertices, triangle indices, and now, vertex normals.
-    /// </summary>
     public class Mesh
     {
         public Vector3D[] Vertices { get; }
-        public Vector3D[] Normals { get; } // Array to store vertex normals
+        public Vector3D[] Normals { get; }
         public int[][] Triangles { get; }
 
-        public Mesh(Vector3D[] vertices, Vector3D[] normals, int[][] triangles) // Modified constructor
+        public Mesh(Vector3D[] vertices, Vector3D[] normals, int[][] triangles)
         {
             if (vertices == null || vertices.Length == 0)
                 throw new ArgumentException("Vertices array cannot be null or empty.", nameof(vertices));
-            if (normals == null || normals.Length == 0 || normals.Length != vertices.Length) // Validate normals
+            if (normals == null || normals.Length == 0 || normals.Length != vertices.Length)
                 throw new ArgumentException("Normals array cannot be null or empty and must match vertex count.", nameof(normals));
             if (triangles == null || triangles.Length == 0)
                 throw new ArgumentException("Triangles array cannot be null or empty.", nameof(triangles));
@@ -43,19 +36,14 @@ namespace RendrixEngine.Models
             }
 
             Vertices = vertices;
-            Normals = normals; // Assign normals
+            Normals = normals;
             Triangles = triangles;
         }
 
-        /// <summary>
-        /// Creates a simple cube mesh with calculated vertex normals.
-        /// </summary>
-        /// <param name="size">The size of the cube.</param>
         public static Mesh CreateCube(float size)
         {
             float s = size / 2.0f;
 
-            // Vertices
             Vector3D[] vertices = new Vector3D[]
             {
                 new Vector3D(-s, -s, -s), // 0
@@ -83,34 +71,27 @@ namespace RendrixEngine.Models
 
             int[][] triangles = new int[][]
             {
-                // Front face
+                //ff
                 new int[] { 0, 1, 2 }, new int[] { 0, 2, 3 },
-                // Back face
+                //bf
                 new int[] { 4, 6, 5 }, new int[] { 4, 7, 6 },
-                // Left face
+                //lf
                 new int[] { 0, 3, 7 }, new int[] { 0, 7, 4 },
-                // Right face
+                //rf
                 new int[] { 1, 5, 6 }, new int[] { 1, 6, 2 },
-                // Top face
+                //tf
                 new int[] { 3, 2, 6 }, new int[] { 3, 6, 7 },
-                // Bottom face
+                //btmf
                 new int[] { 0, 4, 5 }, new int[] { 0, 5, 1 }
             };
 
-            return new Mesh(vertices, normals, triangles); // Pass normals to the constructor
+            return new Mesh(vertices, normals, triangles);
         }
 
-        /// <summary>
-        /// Creates a sphere mesh with calculated vertex positions and normals.
-        /// </summary>
-        /// <param name="radius">The radius of the sphere.</param>
-        /// <param name="latitudeBands">Number of divisions along the latitude.</param>
-        /// <param name="longitudeBands">Number of divisions along the longitude.</param>
-        /// <returns>A new Sphere Mesh.</returns>
         public static Mesh CreateSphere(float radius, int latitudeBands = 20, int longitudeBands = 20)
         {
             var vertices = new List<Vector3D>();
-            var normals = new List<Vector3D>(); //Store normals for sphere
+            var normals = new List<Vector3D>();
             var triangles = new List<int[]>();
 
             for (int lat = 0; lat <= latitudeBands; lat++)
@@ -132,7 +113,7 @@ namespace RendrixEngine.Models
 
                     Vector3D vertex = new Vector3D(x, y, z);
                     vertices.Add(vertex);
-                    normals.Add(vertex.Normalized); // For a sphere the normalized vertex position is its normal
+                    normals.Add(vertex.Normalized);
                 }
             }
 
@@ -148,7 +129,7 @@ namespace RendrixEngine.Models
                 }
             }
 
-            return new Mesh(vertices.ToArray(), normals.ToArray(), triangles.ToArray()); // Pass normals
+            return new Mesh(vertices.ToArray(), normals.ToArray(), triangles.ToArray());
         }
     }
 }

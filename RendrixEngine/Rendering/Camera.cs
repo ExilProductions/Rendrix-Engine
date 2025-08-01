@@ -4,9 +4,6 @@ using RendrixEngine.Mathematics;
 
 namespace RendrixEngine.Rendering
 {
-    /// <summary>
-    /// Represents a camera with position, target, and projection parameters.
-    /// </summary>
     public class Camera
     {
         public Vector3D Position { get; }
@@ -31,8 +28,8 @@ namespace RendrixEngine.Rendering
             AspectRatio = aspectRatio;
             NearPlane = nearPlane;
             FarPlane = farPlane;
-            ViewMatrix = Matrix4x4Extensions.CreateLookAt(position, target, up);
-            ProjectionMatrix = Matrix4x4Extensions.CreatePerspective(fov, aspectRatio, nearPlane, farPlane);
+            ViewMatrix = Matrix4x4Extension.CreateLookAt(position, target, up);
+            ProjectionMatrix = Matrix4x4Extension.CreatePerspective(fov, aspectRatio, nearPlane, farPlane);
         }
     }
 }

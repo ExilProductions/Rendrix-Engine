@@ -1,8 +1,8 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using RendrixEngine.Components;
 using RendrixEngine.Mathematics;
-using RendrixEngine.Models;
 
 namespace RendrixEngine.Rendering
 {

@@ -1,8 +1,5 @@
 ﻿namespace RendrixEngine.Mathematics
 {
-    /// <summary>
-    /// Represents a 2D vector with x, y components.
-    /// </summary>
     public struct Vector2D
     {
         public float X { get; }

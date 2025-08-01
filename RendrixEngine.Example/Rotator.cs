@@ -1,0 +1,15 @@
+﻿using RendrixEngine.Components;
+using RendrixEngine.Mathematics;
+
+namespace CubeExample
+{
+    public class Rotator : Component
+    {
+        public float Speed { get; set; } = 1.0f;
+        public Vector3D direction = new Vector3D(1, 0, 0);
+        public override void Update(float deltaTime)
+        {
+            Transform.Rotate(direction, Speed * deltaTime);
+        }
+    }
+}

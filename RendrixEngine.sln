@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RendrixEngine", "RendrixEngine.csproj", "{317F265E-8DAD-4840-8AA7-2AA2F3DF57CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeExample", "RendrixEngine.Example\CubeExample.csproj", "{3FDB95D2-655E-0343-DFB3-E73C922089F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RendrixEngine", "RendrixEngine\RendrixEngine.csproj", "{94459476-6748-F585-D318-A79C711C94D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{317F265E-8DAD-4840-8AA7-2AA2F3DF57CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{317F265E-8DAD-4840-8AA7-2AA2F3DF57CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{317F265E-8DAD-4840-8AA7-2AA2F3DF57CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{317F265E-8DAD-4840-8AA7-2AA2F3DF57CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FDB95D2-655E-0343-DFB3-E73C922089F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FDB95D2-655E-0343-DFB3-E73C922089F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FDB95D2-655E-0343-DFB3-E73C922089F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FDB95D2-655E-0343-DFB3-E73C922089F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94459476-6748-F585-D318-A79C711C94D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94459476-6748-F585-D318-A79C711C94D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94459476-6748-F585-D318-A79C711C94D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94459476-6748-F585-D318-A79C711C94D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

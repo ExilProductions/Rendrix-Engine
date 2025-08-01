@@ -3,9 +3,6 @@ using System.Numerics;
 
 namespace RendrixEngine.Mathematics
 {
-    /// <summary>
-    /// Represents a 3D vector with x, y, z components.
-    /// </summary>
     public struct Vector3D
     {
         public float X { get; }
@@ -21,66 +18,17 @@ namespace RendrixEngine.Mathematics
             Z = z;
         }
 
-        #region Presets
-
-        /// <summary>
-        /// Gets a <see cref="Vector3D"/> with all components set to zero.
-        /// </summary>
         public static Vector3D Zero => new Vector3D(0, 0, 0);
-
-        /// <summary>
-        /// Gets a <see cref="Vector3D"/> with all components set to one.
-        /// </summary>
         public static Vector3D One => new Vector3D(1, 1, 1);
-
-        /// <summary>
-        /// Gets the X-axis unit vector (1, 0, 0). Also represents 'Right'.
-        /// </summary>
         public static Vector3D UnitX => new Vector3D(1, 0, 0);
-
-        /// <summary>
-        /// Gets the Y-axis unit vector (0, 1, 0). Also represents 'Up'.
-        /// </summary>
         public static Vector3D UnitY => new Vector3D(0, 1, 0);
-
-        /// <summary>
-        /// Gets the Z-axis unit vector (0, 0, 1). Also represents 'Forward' in a right-handed coordinate system.
-        /// </summary>
         public static Vector3D UnitZ => new Vector3D(0, 0, 1);
-
-        /// <summary>
-        /// Gets the vector (1, 0, 0).
-        /// </summary>
         public static Vector3D Right => new Vector3D(1, 0, 0);
-
-        /// <summary>
-        /// Gets the vector (-1, 0, 0).
-        /// </summary>
         public static Vector3D Left => new Vector3D(-1, 0, 0);
-
-        /// <summary>
-        /// Gets the vector (0, 1, 0).
-        /// </summary>
         public static Vector3D Up => new Vector3D(0, 1, 0);
-
-        /// <summary>
-        /// Gets the vector (0, -1, 0).
-        /// </summary>
         public static Vector3D Down => new Vector3D(0, -1, 0);
-
-        /// <summary>
-        /// Gets the vector (0, 0, 1).
-        /// </summary>
         public static Vector3D Forward => new Vector3D(0, 0, 1);
-
-        /// <summary>
-        /// Gets the vector (0, 0, -1).
-        /// </summary>
         public static Vector3D Back => new Vector3D(0, 0, -1);
-
-        #endregion
-
-        #region Operators
 
         public static Vector3D operator +(Vector3D a, Vector3D b) => new Vector3D(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         public static Vector3D operator -(Vector3D a, Vector3D b) => new Vector3D(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
@@ -98,11 +46,6 @@ namespace RendrixEngine.Mathematics
         {
             return !(left == right);
         }
-
-        #endregion
-
-        #region Overrides and Core Methods
-
         public bool Equals(Vector3D other)
         {
             return this == other;
@@ -115,16 +58,12 @@ namespace RendrixEngine.Mathematics
 
         public override int GetHashCode()
         {
-            //TODO:Add rounding to reduce hash mismatch due to float imprecision
             int hashX = Math.Round(X / Epsilon).GetHashCode();
             int hashY = Math.Round(Y / Epsilon).GetHashCode();
             int hashZ = Math.Round(Z / Epsilon).GetHashCode();
             return HashCode.Combine(hashX, hashY, hashZ);
         }
 
-        /// <summary>
-        /// Computes the Euclidean length (magnitude) of the vector.
-        /// </summary>
         public float Length => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
 
         public Vector3D Normalized
@@ -147,7 +86,5 @@ namespace RendrixEngine.Mathematics
         );
 
         public Vector3 ToVector3() => new Vector3(X, Y, Z);
-
-        #endregion
     }
 }

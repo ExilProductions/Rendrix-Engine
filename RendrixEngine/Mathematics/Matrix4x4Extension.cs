@@ -3,10 +3,7 @@ using System.Numerics;
 
 namespace RendrixEngine.Mathematics
 {
-    /// <summary>
-    /// Extensions for Matrix4x4 to support transformation operations.
-    /// </summary>
-    public static class Matrix4x4Extensions
+    public static class Matrix4x4Extension
     {
         public static Vector3D Transform(this Matrix4x4 matrix, Vector3D v)
         {
