@@ -9,9 +9,6 @@ using RendrixEngine.Models;
 
 namespace RendrixEngine.Rendering
 {
-    /// <summary>
-    /// High-level renderer that traverses the scene graph and delegates rasterization to a Rasterizer.
-    /// </summary>
     public class Renderer
     {
         private readonly Camera camera;
@@ -36,8 +33,6 @@ namespace RendrixEngine.Rendering
             this.camera = camera ?? throw new ArgumentNullException(nameof(camera));
             this.asciiChars = asciiChars;
             this.ambientStrength = ambientStrength;
-
-            // We use the Rasterizer for pixel lighting and ASCII output
             rasterizer = new Rasterizer(Width, Height, asciiChars);
         }
 
@@ -89,28 +84,20 @@ namespace RendrixEngine.Rendering
 
                     foreach (var tri in meshRenderer.Mesh.Triangles)
                     {
-                        // Project vertices into camera space
                         Vector3D v0 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[0]]);
                         Vector3D v1 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[1]]);
                         Vector3D v2 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[2]]);
 
                         Vector3D normalCamera = Vector3D.Cross(v1 - v0, v2 - v0).Normalized;
                         if (Vector3D.Dot(normalCamera, v0) > 0) continue;
-
-                        // Get world-space vertices (needed for lighting)
                         Vector3D v0World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[0]]);
                         Vector3D v1World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[1]]);
                         Vector3D v2World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[2]]);
 
-                        // World-space triangle normal for flat shading
                         Vector3D normalWorld = Vector3D.Cross(v1World - v0World, v2World - v0World).Normalized;
-
-                        // Project to 2D screen coordinates
                         Vector2D p0 = Project(v0);
                         Vector2D p1 = Project(v1);
                         Vector2D p2 = Project(v2);
-
-                        // Forward triangle to Rasterizer (with flat normal shading)
                         rasterizer.RasterizeTriangleWithLighting(
                             p0, p1, p2,
                             v0.Z, v1.Z, v2.Z,

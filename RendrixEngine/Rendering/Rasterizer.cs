@@ -6,9 +6,6 @@ using RendrixEngine.Mathematics;
 
 namespace RendrixEngine.Rendering
 {
-    /// <summary>
-    /// Handles rasterization of triangles onto a screen buffer with per-pixel lighting.
-    /// </summary>
     public class Rasterizer
     {
         private readonly char[,] screenBuffer;
@@ -114,11 +111,8 @@ namespace RendrixEngine.Rendering
                         float z = u * z0 + v * z1 + w * z2;
                         if (z < zBuffer[j, i])
                         {
-                            // Interpolate world position and normal for this pixel
                             Vector3D worldPos = worldPos0 * u + worldPos1 * v + worldPos2 * w;
                             Vector3D normal = (normal0 * u + normal1 * v + normal2 * w).Normalized;
-
-                            // Calculate per-pixel lighting
                             float brightness = CalculateLighting(worldPos, normal, lights, ambientStrength);
                             brightness = Math.Clamp(brightness, 0, 1);
 
@@ -143,7 +137,7 @@ namespace RendrixEngine.Rendering
                 {
                     diffuse = Math.Max(0, Vector3D.Dot(normal, light.Direction)) * light.Intensity;
                 }
-                else // Point light
+                else
                 {
                     Vector3D lightDir = (light.Position - worldPos);
                     float distance = lightDir.Length;
