@@ -2,7 +2,7 @@
 
 namespace RendrixEngine.Input
 {
-    public class InputManager
+    public class KeyboardInput
     {
         private static readonly HashSet<ConsoleKey> keysDown = new();
         private static readonly HashSet<ConsoleKey> keysHeld = new();
@@ -14,7 +14,7 @@ namespace RendrixEngine.Input
         private static readonly Timer updateTimer;
         private static readonly Thread inputThread;
 
-        static InputManager()
+        static KeyboardInput()
         {
             inputThread = new Thread(InputLoop) { IsBackground = true };
             inputThread.Start();

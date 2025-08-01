@@ -10,7 +10,7 @@ namespace RendrixEngine.Components
     {
         public virtual Transform Transform { get; set; }
 
-        public virtual void OnEnable()
+        public virtual void OnAwake()
         {
         }
 
@@ -18,7 +18,7 @@ namespace RendrixEngine.Components
         {
         }
 
-        public virtual void Update(float deltaTime)
+        public virtual void Update()
         {
         }
     }

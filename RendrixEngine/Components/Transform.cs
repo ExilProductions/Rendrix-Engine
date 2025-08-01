@@ -11,7 +11,6 @@ namespace RendrixEngine.Components
         public Quaternion Rotation { get; set; }
         public Vector3D Scale { get; set; }
         public Transform? Parent { get; set; }
-        public List<Transform> Children { get; } = new();
 
         public Transform()
         {

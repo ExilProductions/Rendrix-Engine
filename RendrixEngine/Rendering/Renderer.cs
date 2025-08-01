@@ -56,7 +56,7 @@ namespace RendrixEngine.Rendering
 
         private void UpdateComponents(SceneNode node)
         {
-            node.Components.ForEach(c => c.Update(Time.DeltaTime));
+            node.Components.ForEach(c => c.Update());
             foreach (var child in node.Children)
                 UpdateComponents(child);
         }

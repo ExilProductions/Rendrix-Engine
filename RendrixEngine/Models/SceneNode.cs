@@ -39,7 +39,7 @@ namespace RendrixEngine.Models
         {
             var component = new T();
             Components.Add(component);
-            component.OnEnable();
+            component.OnAwake();
             component.Transform = Transform;
             return component;
         }

@@ -1,4 +1,5 @@
-﻿using RendrixEngine.Components;
+﻿using RendrixEngine;
+using RendrixEngine.Components;
 using RendrixEngine.Mathematics;
 
 namespace CubeExample
@@ -7,9 +8,9 @@ namespace CubeExample
     {
         public float Speed { get; set; } = 1.0f;
         public Vector3D direction = new Vector3D(1, 0, 0);
-        public override void Update(float deltaTime)
+        public override void Update()
         {
-            Transform.Rotate(direction, Speed * deltaTime);
+            Transform.Rotate(direction, Speed * Time.DeltaTime);
         }
     }
 }
