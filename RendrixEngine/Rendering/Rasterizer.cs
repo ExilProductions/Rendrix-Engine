@@ -133,13 +133,13 @@ namespace RendrixEngine.Rendering
             foreach (var light in lights)
             {
                 float diffuse = 0;
-                if (light.Type == Light.LightType.Directional)
+                if (light.Type == LightType.Directional)
                 {
                     diffuse = Math.Max(0, Vector3D.Dot(normal, light.Direction)) * light.Intensity;
                 }
                 else
                 {
-                    Vector3D lightDir = (light.Position - worldPos);
+                    Vector3D lightDir = (light.Transform.Position - worldPos);
                     float distance = lightDir.Length;
 
                     if (distance <= light.Range)
