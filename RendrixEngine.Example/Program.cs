@@ -1,4 +1,5 @@
-﻿using RendrixEngine.Components;
+﻿using RendrixEngine;
+using RendrixEngine.Components;
 using RendrixEngine.Mathematics;
 using RendrixEngine.Models;
 
@@ -23,7 +24,7 @@ namespace CubeExample
                 float pulseFrequency2 = 1.0f;
 
 
-                RendrixEngine.Engine.RendrixEngine engine = new RendrixEngine.Engine.RendrixEngine(
+                Engine engine = new Engine(
                     width: screenWidth,
                     height: screenHeight,
                     targetFPS: 30,
@@ -69,7 +70,7 @@ namespace CubeExample
                 var lightNode = new SceneNode("Light");
                 lightNode.Transform.Position = new Vector3D(2, 0, 0);
                 Light light = lightNode.AddComponent<Light>();
-                light.Type = Light.LightType.Point;
+                light.Type = LightType.Point;
                 light.Intensity = 1;
                 light.Range = 5;
 

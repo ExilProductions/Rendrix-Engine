@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using RendrixEngine.Components;
-using RendrixEngine.Engine;
 using RendrixEngine.Mathematics;
 using RendrixEngine.Models;
 

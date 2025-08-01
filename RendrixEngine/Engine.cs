@@ -1,37 +1,34 @@
-﻿using RendrixEngine.Mathematics;
+﻿
+using RendrixEngine.Mathematics;
 using RendrixEngine.Models;
 using RendrixEngine.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace RendrixEngine.Engine
+namespace RendrixEngine
 {
-    public class RendrixEngine
+    public class Engine
     {
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr GetStdHandle(int nStdHandle);
+        private static extern nint GetStdHandle(int nStdHandle);
 
         [DllImport("kernel32.dll")]
-        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+        private static extern bool GetConsoleMode(nint hConsoleHandle, out uint lpMode);
 
         [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+        private static extern bool SetConsoleMode(nint hConsoleHandle, uint dwMode);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr GetConsoleWindow();
+        private static extern nint GetConsoleWindow();
 
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        private static extern int GetWindowLong(nint hWnd, int nIndex);
 
         [DllImport("user32.dll")]
-        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        private static extern int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
 
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool DrawMenuBar(IntPtr hWnd);
+        private static extern bool DrawMenuBar(nint hWnd);
 
         private const int STD_INPUT_HANDLE = -10;
         private const uint ENABLE_QUICK_EDIT_MODE = 0x0040;
@@ -41,14 +38,14 @@ namespace RendrixEngine.Engine
         private const int WS_THICKFRAME = 0x00040000;
         private static void DisableQuickEdit()
         {
-            IntPtr consoleHandle = GetStdHandle(STD_INPUT_HANDLE);
+            nint consoleHandle = GetStdHandle(STD_INPUT_HANDLE);
             if (!GetConsoleMode(consoleHandle, out uint consoleMode)) return;
             SetConsoleMode(consoleHandle, consoleMode & ~ENABLE_QUICK_EDIT_MODE);
         }
         private static void DisableResize()
         {
-            IntPtr handle = GetConsoleWindow();
-            if (handle == IntPtr.Zero) return;
+            nint handle = GetConsoleWindow();
+            if (handle == nint.Zero) return;
 
             int style = GetWindowLong(handle, GWL_STYLE);
             SetWindowLong(handle, GWL_STYLE, style & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME);
@@ -67,7 +64,7 @@ namespace RendrixEngine.Engine
         private float frameTime => 1000.0f / targetFPS;
         private const string asciiChars = " .:-=+*#%@\"";
 
-        public RendrixEngine(int width, int height, int targetFPS, string title, float ambientStrength)
+        public Engine(int width, int height, int targetFPS, string title, float ambientStrength)
         {
             Width = width;
             Height = height;
