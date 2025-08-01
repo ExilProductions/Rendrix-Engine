@@ -1,6 +1,6 @@
 ﻿using RendrixEngine.Components;
 
-namespace RendrixEngine.Models
+namespace RendrixEngine.Systems
 {
     public class SceneNode
     {

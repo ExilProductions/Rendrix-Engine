@@ -1,9 +1,13 @@
-﻿namespace InputExample
+﻿using RendrixEngine;
+using RendrixEngine.Components;
+using RendrixEngine.Mathematics;
+using RendrixEngine.Models;
+using RendrixEngine.Systems;
+using System.Resources;
+
+namespace InputExample
 {
-    using RendrixEngine;
-    using RendrixEngine.Components;
-    using RendrixEngine.Mathematics;
-    using RendrixEngine.Models;
+    
     public class Program
     {
         public static void Main(string[] args)

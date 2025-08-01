@@ -12,4 +12,8 @@
     <EmbeddedResource Remove="RendrixEngine.Example\**" />
     <None Remove="RendrixEngine.Example\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.6.25358.103" />
+  </ItemGroup>
 </Project>

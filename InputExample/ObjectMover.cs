@@ -1,7 +1,7 @@
-﻿using RendrixEngine;
-using RendrixEngine.Components;
+﻿using RendrixEngine.Components;
 using RendrixEngine.Input;
 using RendrixEngine.Mathematics;
+using RendrixEngine.Systems;
 
 namespace InputExample
 {

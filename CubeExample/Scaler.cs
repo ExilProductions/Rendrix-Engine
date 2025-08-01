@@ -1,6 +1,6 @@
 ﻿using RendrixEngine.Components;
 using RendrixEngine.Mathematics;
-using RendrixEngine;
+using RendrixEngine.Systems;
 
 namespace CubeExample
 {

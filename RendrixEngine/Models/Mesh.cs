@@ -4,15 +4,19 @@ namespace RendrixEngine.Models
 {
     public class Mesh
     {
-        public Vector3D[] Vertices { get; }
-        public Vector3D[] Normals { get; }
+        public string Name { get; set; } = string.Empty;
+        public List<Vector3D> Vertices { get; }
+        public List<Vector3D> Normals { get; }
+        public List<int> Indices { get; } = new List<int>();
         public int[][] Triangles { get; }
 
-        public Mesh(Vector3D[] vertices, Vector3D[] normals, int[][] triangles)
+        public Mesh() { }
+
+        public Mesh(List<Vector3D> vertices, List<Vector3D> normals, int[][] triangles)
         {
-            if (vertices == null || vertices.Length == 0)
+            if (vertices == null || vertices.Count == 0)
                 throw new ArgumentException("Vertices array cannot be null or empty.", nameof(vertices));
-            if (normals == null || normals.Length == 0 || normals.Length != vertices.Length)
+            if (normals == null || normals.Count == 0 || normals.Count != vertices.Count)
                 throw new ArgumentException("Normals array cannot be null or empty and must match vertex count.", nameof(normals));
             if (triangles == null || triangles.Length == 0)
                 throw new ArgumentException("Triangles array cannot be null or empty.", nameof(triangles));
@@ -24,7 +28,7 @@ namespace RendrixEngine.Models
                     throw new ArgumentException("Each triangle must have exactly 3 indices.", nameof(triangles));
                 foreach (var index in tri)
                 {
-                    if (index < 0 || index >= vertices.Length)
+                    if (index < 0 || index >= vertices.Count)
                         throw new ArgumentOutOfRangeException(nameof(triangles), "Triangle index out of bounds.");
                 }
                 var sortedTri = tri.OrderBy(i => i).ToArray();
@@ -85,7 +89,7 @@ namespace RendrixEngine.Models
                 new int[] { 0, 4, 5 }, new int[] { 0, 5, 1 }
             };
 
-            return new Mesh(vertices, normals, triangles);
+            return new Mesh(vertices.ToList(), normals.ToList(), triangles);
         }
 
         public static Mesh CreateSphere(float radius, int latitudeBands = 20, int longitudeBands = 20)
@@ -129,7 +133,7 @@ namespace RendrixEngine.Models
                 }
             }
 
-            return new Mesh(vertices.ToArray(), normals.ToArray(), triangles.ToArray());
+            return new Mesh(vertices, normals, triangles.ToArray());
         }
     }
 }
