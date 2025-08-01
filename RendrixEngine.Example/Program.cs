@@ -31,8 +31,6 @@ namespace CubeExample
                     ambientStrength: ambientStrength
                 );
 
-                engine.Initialize();
-
                 var cubeMesh = Mesh.CreateCube(2f);
 
                 Rotator rootNodeRotator = engine.RootNode.AddComponent<Rotator>();
@@ -79,6 +77,8 @@ namespace CubeExample
                 engine.RootNode.AddChild(cube1);
                 engine.RootNode.AddChild(cube2);
                 engine.RootNode.AddChild(lightNode);
+
+                engine.Initialize(); //always initialize after setting up everything
             }
             catch (Exception ex)
             {
