@@ -2,7 +2,6 @@
 using RendrixEngine.Models;
 using RendrixEngine.Systems;
 using RendrixEngine.Components;
-using RendrixEngine.Loader;
 using RendrixEngine.Mathematics;
 
 
@@ -12,22 +11,23 @@ namespace TextureExample
     {
         public static void Main(string[] args)
         {
-            Engine engine = new Engine(120, 40, 30, "Rendrix Engine Texture Example", 0.6f);
+            Engine engine = new Engine(120, 40, 144, "Rendrix Engine Texture Example", 0.6f);
 
             var mesh = Mesh.CreateCube(2.5f);
-            mesh.Texture = TextureLoader.LoadTexture(Assets.checker_texture);
+            mesh.Texture = new Texture(Assets.checker_texture);
             var cubeObject = new SceneNode("Cube");
             var meshRenderer = cubeObject.AddComponent<MeshRenderer>();
             meshRenderer.Mesh = mesh;
             var rotator = cubeObject.AddComponent<Rotator>();
             rotator.direction = new Vector3D(1.2f, 1.1f, 1.4f);
-            rotator.Speed = 3.0f;
+            rotator.Speed = 2.0f;
 
             var lightNode = new SceneNode("Light");
+            lightNode.Transform.Position = new Vector3D(0, 5, 0);
             var lightComponent = lightNode.AddComponent<Light>();
             lightComponent.Type = LightType.Directional;
             lightComponent.Intensity = 1.0f;
-            lightComponent.Direction = new Vector3D(1, 0, 0);
+            lightComponent.Range = 10.0f;
 
             engine.RootNode.AddChild(cubeObject);
             engine.RootNode.AddChild(lightNode);

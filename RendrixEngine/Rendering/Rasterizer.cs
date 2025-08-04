@@ -80,7 +80,7 @@ namespace RendrixEngine.Rendering
             }
         }
 
-        public void RasterizeTriangleWithLighting(
+        public void RasterizeLit(
             Vector2D p0, Vector2D p1, Vector2D p2,
             float z0, float z1, float z2,
             Vector3D worldPos0, Vector3D worldPos1, Vector3D worldPos2,

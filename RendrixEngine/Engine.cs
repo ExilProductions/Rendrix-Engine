@@ -47,8 +47,11 @@ namespace RendrixEngine
             if (handle == nint.Zero) return;
 
             int style = GetWindowLong(handle, GWL_STYLE);
-            SetWindowLong(handle, GWL_STYLE, style & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME);
+            if(style == 0) return;
+            int newStyle = style & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME;
+            SetWindowLong(handle, GWL_STYLE, newStyle);
             DrawMenuBar(handle);
+            Console.SetWindowSize(Console.WindowWidth, Console.WindowHeight);
         }
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -82,13 +85,17 @@ namespace RendrixEngine
             Console.Title = Title;
             try
             {
-                Console.SetWindowSize(Width, Height + 1);
+                int maxWidth = Math.Min(Width, Console.LargestWindowWidth);
+                int maxHeight = Math.Min(Height, Console.LargestWindowHeight);
+                Console.SetWindowSize(maxWidth, maxHeight);
                 if (OperatingSystem.IsWindows())
                 {
-                    Console.SetBufferSize(Width, Height + 1);
+                    Console.SetBufferSize(maxWidth, maxHeight);
                     DisableQuickEdit();
                     DisableResize();
                 }
+                Width = maxWidth;
+                Height = maxHeight;
             }
             catch (PlatformNotSupportedException)
             {
@@ -121,7 +128,7 @@ namespace RendrixEngine
             isRunning = true;
             DateTime startTime = DateTime.Now;
             DateTime lastFrameTime = DateTime.Now;
-            StringBuilder frameBuffer = new StringBuilder(Width * (Height + 1));
+            StringBuilder frameBuffer = new StringBuilder(Width * (Height));
             while (isRunning)
             {
                 DateTime frameStart = DateTime.Now;
@@ -147,8 +154,6 @@ namespace RendrixEngine
             isRunning = false;
             Console.CursorVisible = true;
             Console.SetCursorPosition(0, Height);
-            Console.WriteLine("Engine stopped. Press any key to exit...");
-            Console.ReadKey(true);
         }
     }
 }

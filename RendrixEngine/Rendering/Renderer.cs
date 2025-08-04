@@ -120,7 +120,7 @@ namespace RendrixEngine.Rendering
                             uv2 = meshRenderer.Mesh.UVs[tri[2]];
                         }
 
-                        rasterizer.RasterizeTriangleWithLighting(
+                        rasterizer.RasterizeLit(
                             p0, p1, p2,
                             v0_view.Z, v1_view.Z, v2_view.Z,
                             v0_world, v1_world, v2_world,
@@ -140,10 +140,12 @@ namespace RendrixEngine.Rendering
         {
             Vector3D vProj = camera.ProjectionMatrix.Transform(v);
             if (vProj.Z <= 0) return new Vector2D(-1, -1);
-            return new Vector2D(
-                (vProj.X * 0.5f + 0.5f) * Width,
-                (1 - (vProj.Y * 0.5f + 0.5f)) * Height
-            );
+            float aspectCorrection = 0.65f;
+            float x = (vProj.X * 0.5f + 0.5f) * Width;
+            float y = (1 - (vProj.Y * 0.5f * aspectCorrection + 0.5f)) * Height;
+            x = Math.Clamp(x, 0, Width);
+            y = Math.Clamp(y, 0, Height);
+            return new Vector2D(x, y);
         }
 
         public string GetFrame()

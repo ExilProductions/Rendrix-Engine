@@ -28,7 +28,7 @@ namespace CubeExample
                 Engine engine = new Engine(
                     width: screenWidth,
                     height: screenHeight,
-                    targetFPS: 30,
+                    targetFPS: 144,
                     title: "Rendrix Engine Cube Example",
                     ambientStrength: ambientStrength,
                     indirectLighting: 0.6f
