@@ -11,7 +11,7 @@ namespace RendrixEngine.Rendering
 {
     public class Renderer
     {
-        private readonly Camera camera;
+        private Camera camera;
         private readonly string asciiChars;
         private readonly float ambientStrength;
         private readonly Rasterizer rasterizer;
@@ -19,7 +19,7 @@ namespace RendrixEngine.Rendering
         public int Width { get; }
         public int Height { get; }
 
-        public Renderer(int screenWidth, int screenHeight, Camera camera, string asciiChars, float ambientStrength)
+        public Renderer(int screenWidth, int screenHeight, Camera camera, string asciiChars, float ambientStrength, float indirectLighting = 0.2f)
         {
             if (screenWidth <= 0 || screenHeight <= 0)
                 throw new ArgumentException("Width and height must be positive.");
@@ -33,7 +33,7 @@ namespace RendrixEngine.Rendering
             this.camera = camera ?? throw new ArgumentNullException(nameof(camera));
             this.asciiChars = asciiChars;
             this.ambientStrength = ambientStrength;
-            rasterizer = new Rasterizer(Width, Height, asciiChars);
+            rasterizer = new Rasterizer(Width, Height, asciiChars, indirectLighting);
         }
 
         public void Clear()

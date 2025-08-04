@@ -21,10 +21,9 @@ namespace RendrixEngine.Models
             _bitmap = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
         }
 
-        // Get the underlying bitmap (read-only access)
         public Bitmap GetBitmap() => _bitmap;
 
-        // Example method to get pixel data
+        
         public Color GetPixel(int x, int y)
         {
             if (x < 0 || x >= Width || y < 0 || y >= Height)

@@ -14,8 +14,10 @@ namespace RendrixEngine.Rendering
         public int Height { get; }
         private readonly string asciiChars;
         private const float FalloffConstant = 0.1f;
+        private float previousAverageBrightness = 0f;
+        private float indirectFactor;
 
-        public Rasterizer(int width, int height, string asciiChars)
+        public Rasterizer(int width, int height, string asciiChars, float indirectFactor = 0.2f)
         {
             if (width <= 0 || height <= 0)
                 throw new ArgumentException("Width and height must be positive.");
@@ -25,6 +27,7 @@ namespace RendrixEngine.Rendering
             Width = width;
             Height = height;
             this.asciiChars = asciiChars;
+            this.indirectFactor = indirectFactor;
             screenBuffer = new char[height, width];
             zBuffer = new float[height, width];
             Clear();
@@ -170,18 +173,37 @@ namespace RendrixEngine.Rendering
                 brightness += diffuse;
             }
 
+            float indirectLighting = indirectFactor * previousAverageBrightness;
+            brightness += indirectLighting;
+
             return brightness;
         }
 
         public string GetFrame()
         {
             var sb = new System.Text.StringBuilder();
+            float totalBrightness = 0;
+            int pixelCount = Width * Height;
+
             for (int j = 0; j < Height; j++)
             {
                 for (int i = 0; i < Width; i++)
-                    sb.Append(screenBuffer[j, i]);
+                {
+                    char c = screenBuffer[j, i];
+                    sb.Append(c);
+                    if (c != ' ')
+                    {
+                        int index = asciiChars.IndexOf(c);
+                        if (index != -1)
+                        {
+                            totalBrightness += (float)index / (asciiChars.Length - 1);
+                        }
+                    }
+                }
                 sb.Append('\n');
             }
+
+            previousAverageBrightness = totalBrightness / pixelCount;
             return sb.ToString();
         }
     }

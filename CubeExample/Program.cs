@@ -29,8 +29,9 @@ namespace CubeExample
                     width: screenWidth,
                     height: screenHeight,
                     targetFPS: 30,
-                    title: "Rendrix Engine Demo",
-                    ambientStrength: ambientStrength
+                    title: "Rendrix Engine Cube Example",
+                    ambientStrength: ambientStrength,
+                    indirectLighting: 0.6f
                 );
 
                 var mesh = Mesh.CreateCube(2f);
@@ -69,12 +70,12 @@ namespace CubeExample
                 scaler2.pulseFrequency = pulseFrequency2; 
 
                 var lightNode = new SceneNode("Light");
-                lightNode.Transform.Position = new Vector3D(2, 0, 0);
+                lightNode.Transform.Position = new Vector3D(0, 0, 0);
                 Light light = lightNode.AddComponent<Light>();
-                light.Type = LightType.Point;
+                light.Type = LightType.Directional;
                 light.Intensity = 1;
                 light.Range = 5;
-
+                light.Direction = new Vector3D(-1, -1, -1).Normalized;
 
                 engine.RootNode.AddChild(cube1);
                 engine.RootNode.AddChild(cube2);

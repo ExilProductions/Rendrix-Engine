@@ -1,5 +1,4 @@
-﻿
-using RendrixEngine.Mathematics;
+﻿using RendrixEngine.Mathematics;
 using RendrixEngine.Rendering;
 using RendrixEngine.Systems;
 using System.Runtime.InteropServices;
@@ -57,6 +56,9 @@ namespace RendrixEngine
         public int targetFPS = 30;
         public string Title { get; private set; }
         public float AmbientStrength { get; private set; } = 0.3f;
+
+        public float IndirectLighting { get; private set; } = 0.2f;
+
         public Camera Camera { get; private set; }
         public Renderer Renderer { get; private set; }
         public SceneNode RootNode { get; } = new SceneNode("Root");
@@ -64,13 +66,14 @@ namespace RendrixEngine
         private float frameTime => 1000.0f / targetFPS;
         private const string asciiChars = " .:-=+*#%@\"";
 
-        public Engine(int width, int height, int targetFPS, string title, float ambientStrength)
+        public Engine(int width, int height, int targetFPS, string title, float ambientStrength, float indirectLighting = 0.2f)
         {
             Width = width;
             Height = height;
             this.targetFPS = targetFPS;
             Title = title;
             AmbientStrength = ambientStrength;
+            IndirectLighting = indirectLighting;
         }
 
         public void Initialize()
@@ -105,12 +108,14 @@ namespace RendrixEngine
                 farPlane: 100.0f
             );
             Camera = camera;
+            Camera.main = camera;
             var renderer = new Renderer(
                 screenWidth: Width,
                 screenHeight: Height,
                 camera: camera,
                 asciiChars: asciiChars,
-                ambientStrength: AmbientStrength
+                ambientStrength: AmbientStrength,
+                indirectLighting: IndirectLighting
             );
             Renderer = renderer;
             isRunning = true;

@@ -6,15 +6,17 @@ namespace RendrixEngine.Rendering
 {
     public class Camera
     {
-        public Vector3D Position { get; }
-        public Vector3D Target { get; }
-        public Vector3D Up { get; }
+        public Vector3D Position { get; set; }
+        public Vector3D Target { get; set; }
+        public Vector3D Up { get; set; }
         public float Fov { get; }
         public float AspectRatio { get; }
         public float NearPlane { get; }
         public float FarPlane { get; }
         public Matrix4x4 ViewMatrix { get; }
         public Matrix4x4 ProjectionMatrix { get; }
+
+        public static Camera main;
 
         public Camera(Vector3D position, Vector3D target, Vector3D up, float fov, float aspectRatio, float nearPlane, float farPlane)
         {
