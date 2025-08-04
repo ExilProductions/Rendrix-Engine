@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Text;
 using RendrixEngine.Components;
 using RendrixEngine.Mathematics;
+using RendrixEngine.Models;
 using RendrixEngine.Systems;
 
 namespace RendrixEngine.Rendering
@@ -79,29 +80,53 @@ namespace RendrixEngine.Rendering
             {
                 if (c is MeshRenderer meshRenderer)
                 {
-                    Matrix4x4 modelView = node.Transform.WorldMatrix * camera.ViewMatrix;
+                    Matrix4x4 modelMatrix = node.Transform.WorldMatrix;
+                    Matrix4x4 modelViewMatrix = modelMatrix * camera.ViewMatrix;
+
+                    Texture? texture = meshRenderer.Mesh.Texture;
+                    bool hasUVs = meshRenderer.Mesh.UVs.Count > 0;
 
                     foreach (var tri in meshRenderer.Mesh.Triangles)
                     {
-                        Vector3D v0 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[0]]);
-                        Vector3D v1 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[1]]);
-                        Vector3D v2 = modelView.Transform(meshRenderer.Mesh.Vertices[tri[2]]);
+                        Vector3D v0_local = meshRenderer.Mesh.Vertices[tri[0]];
+                        Vector3D v1_local = meshRenderer.Mesh.Vertices[tri[1]];
+                        Vector3D v2_local = meshRenderer.Mesh.Vertices[tri[2]];
 
-                        Vector3D normalCamera = Vector3D.Cross(v1 - v0, v2 - v0).Normalized;
-                        if (Vector3D.Dot(normalCamera, v0) > 0) continue;
-                        Vector3D v0World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[0]]);
-                        Vector3D v1World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[1]]);
-                        Vector3D v2World = node.Transform.WorldMatrix.Transform(meshRenderer.Mesh.Vertices[tri[2]]);
+                        Vector3D v0_view = modelViewMatrix.Transform(v0_local);
+                        Vector3D v1_view = modelViewMatrix.Transform(v1_local);
+                        Vector3D v2_view = modelViewMatrix.Transform(v2_local);
 
-                        Vector3D normalWorld = Vector3D.Cross(v1World - v0World, v2World - v0World).Normalized;
-                        Vector2D p0 = Project(v0);
-                        Vector2D p1 = Project(v1);
-                        Vector2D p2 = Project(v2);
+                        Vector3D normal_view = Vector3D.Cross(v1_view - v0_view, v2_view - v0_view).Normalized;
+                        if (Vector3D.Dot(normal_view, v0_view) > 0) continue;
+
+                        Vector3D v0_world = modelMatrix.Transform(v0_local);
+                        Vector3D v1_world = modelMatrix.Transform(v1_local);
+                        Vector3D v2_world = modelMatrix.Transform(v2_local);
+
+                        Vector3D n0_world = modelMatrix.TransformNormal(meshRenderer.Mesh.Normals[tri[0]]);
+                        Vector3D n1_world = modelMatrix.TransformNormal(meshRenderer.Mesh.Normals[tri[1]]);
+                        Vector3D n2_world = modelMatrix.TransformNormal(meshRenderer.Mesh.Normals[tri[2]]);
+
+                        Vector2D p0 = Project(v0_view);
+                        Vector2D p1 = Project(v1_view);
+                        Vector2D p2 = Project(v2_view);
+
+                        Vector2D uv0 = Vector2D.Zero, uv1 = Vector2D.Zero, uv2 = Vector2D.Zero;
+
+                        if (texture != null && hasUVs)
+                        {
+                            uv0 = meshRenderer.Mesh.UVs[tri[0]];
+                            uv1 = meshRenderer.Mesh.UVs[tri[1]];
+                            uv2 = meshRenderer.Mesh.UVs[tri[2]];
+                        }
+
                         rasterizer.RasterizeTriangleWithLighting(
                             p0, p1, p2,
-                            v0.Z, v1.Z, v2.Z,
-                            v0World, v1World, v2World,
-                            normalWorld, normalWorld, normalWorld,
+                            v0_view.Z, v1_view.Z, v2_view.Z,
+                            v0_world, v1_world, v2_world,
+                            n0_world, n1_world, n2_world,
+                            uv0, uv1, uv2,
+                            texture,
                             lights, ambientStrength, asciiChars);
                     }
                 }

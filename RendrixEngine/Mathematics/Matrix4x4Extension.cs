@@ -13,6 +13,12 @@ namespace RendrixEngine.Mathematics
             return new Vector3D(result.X / result.W, result.Y / result.W, result.Z / result.W);
         }
 
+        public static Vector3D TransformNormal(this Matrix4x4 matrix, Vector3D n)
+        {
+            Vector4 result = Vector4.Transform(new Vector4(n.ToVector3(), 0f), matrix);
+            return new Vector3D(result.X, result.Y, result.Z);
+        }
+
         public static Matrix4x4 CreateLookAt(Vector3D eye, Vector3D target, Vector3D up)
         {
             Vector3D zAxis = (eye - target).Normalized;

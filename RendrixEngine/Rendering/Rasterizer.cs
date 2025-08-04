@@ -1,8 +1,8 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RendrixEngine.Components;
 using RendrixEngine.Mathematics;
+using RendrixEngine.Models;
 
 namespace RendrixEngine.Rendering
 {
@@ -82,6 +82,8 @@ namespace RendrixEngine.Rendering
             float z0, float z1, float z2,
             Vector3D worldPos0, Vector3D worldPos1, Vector3D worldPos2,
             Vector3D normal0, Vector3D normal1, Vector3D normal2,
+            Vector2D uv0, Vector2D uv1, Vector2D uv2,
+            Texture? texture,
             List<Light> lights, float ambientStrength, string asciiChars)
         {
             float minX = Math.Min(p0.X, Math.Min(p1.X, p2.X));
@@ -102,21 +104,37 @@ namespace RendrixEngine.Rendering
                     float area = (p1.Y - p2.Y) * (p0.X - p2.X) + (p2.X - p1.X) * (p0.Y - p2.Y);
                     if (Math.Abs(area) < 1e-6f) continue;
 
-                    float u = ((p1.Y - p2.Y) * (p.X - p2.X) + (p2.X - p1.X) * (p.Y - p2.Y)) / area;
-                    float v = ((p2.Y - p0.Y) * (p.X - p2.X) + (p0.X - p2.X) * (p.Y - p2.Y)) / area;
-                    float w = 1 - u - v;
+                    float u_bary = ((p1.Y - p2.Y) * (p.X - p2.X) + (p2.X - p1.X) * (p.Y - p2.Y)) / area;
+                    float v_bary = ((p2.Y - p0.Y) * (p.X - p2.X) + (p0.X - p2.X) * (p.Y - p2.Y)) / area;
+                    float w_bary = 1 - u_bary - v_bary;
 
-                    if (u >= 0 && v >= 0 && w >= 0)
+                    if (u_bary >= 0 && v_bary >= 0 && w_bary >= 0)
                     {
-                        float z = u * z0 + v * z1 + w * z2;
+                        float z = u_bary * z0 + v_bary * z1 + w_bary * z2;
                         if (z < zBuffer[j, i])
                         {
-                            Vector3D worldPos = worldPos0 * u + worldPos1 * v + worldPos2 * w;
-                            Vector3D normal = (normal0 * u + normal1 * v + normal2 * w).Normalized;
-                            float brightness = CalculateLighting(worldPos, normal, lights, ambientStrength);
-                            brightness = Math.Clamp(brightness, 0, 1);
+                            Vector3D worldPos = worldPos0 * u_bary + worldPos1 * v_bary + worldPos2 * w_bary;
+                            Vector3D normal = (normal0 * u_bary + normal1 * v_bary + normal2 * w_bary).Normalized;
+                            float lightingBrightness = CalculateLighting(worldPos, normal, lights, ambientStrength);
 
-                            char asciiChar = asciiChars[(int)(brightness * (asciiChars.Length - 1))];
+                            float finalBrightness;
+                            if (texture != null)
+                            {
+                                var interpolatedUV = uv0 * u_bary + uv1 * v_bary + uv2 * w_bary;
+                                float u_coord = Math.Clamp(interpolatedUV.X, 0.0f, 1.0f);
+                                float v_coord = Math.Clamp(interpolatedUV.Y, 0.0f, 1.0f);
+
+                                var texColor = texture.GetPixel((int)(u_coord * (texture.Width - 1)), (int)(v_coord * (texture.Height - 1)));
+                                float textureBrightness = (texColor.R / 255f * 0.299f) + (texColor.G / 255f * 0.587f) + (texColor.B / 255f * 0.114f);
+                                finalBrightness = textureBrightness * lightingBrightness;
+                            }
+                            else
+                            {
+                                finalBrightness = lightingBrightness;
+                            }
+
+                            finalBrightness = Math.Clamp(finalBrightness, 0, 1);
+                            char asciiChar = asciiChars[(int)(finalBrightness * (asciiChars.Length - 1))];
 
                             zBuffer[j, i] = z;
                             screenBuffer[j, i] = asciiChar;

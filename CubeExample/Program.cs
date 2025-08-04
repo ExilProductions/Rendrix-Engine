@@ -33,7 +33,7 @@ namespace CubeExample
                     ambientStrength: ambientStrength
                 );
 
-                var cubeMesh = Mesh.CreateCube(2f);
+                var mesh = Mesh.CreateCube(2f);
 
                 Rotator rootNodeRotator = engine.RootNode.AddComponent<Rotator>();
                 rootNodeRotator.direction = new Vector3D(0, 1, 0);
@@ -43,7 +43,7 @@ namespace CubeExample
                 cube1.Transform.Position = new Vector3D(1.5f, 0, 0);
 
                 MeshRenderer cube1Renderer = cube1.AddComponent<MeshRenderer>();
-                cube1Renderer.Mesh = cubeMesh;
+                cube1Renderer.Mesh = mesh;
 
                 Rotator rotator = cube1.AddComponent<Rotator>();
                 rotator.direction = new Vector3D(1, 0, 0);
@@ -57,7 +57,7 @@ namespace CubeExample
                 var cube2 = new SceneNode("Cube 2");
                 cube2.Transform.Position = new Vector3D(-1.5f, 0, 0);
                 MeshRenderer cube2Renderer = cube2.AddComponent<MeshRenderer>();
-                cube2Renderer.Mesh = cubeMesh;
+                cube2Renderer.Mesh = mesh;
 
                 Rotator rotator2 = cube2.AddComponent<Rotator>();
                 rotator2.direction = new Vector3D(0, 0, 1);
