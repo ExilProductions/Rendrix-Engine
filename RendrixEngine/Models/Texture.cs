@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RendrixEngine.Models
+namespace RendrixEngine
 {
     public class Texture : IDisposable
     {

@@ -1,7 +1,4 @@
-﻿using RendrixEngine.Components;
-using RendrixEngine.Mathematics;
-using RendrixEngine.Systems;
-
+﻿using RendrixEngine;
 namespace CubeExample
 {
     public class Rotator : Component

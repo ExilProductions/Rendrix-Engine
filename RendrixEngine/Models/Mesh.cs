@@ -1,6 +1,8 @@
-﻿using RendrixEngine.Mathematics;
+﻿using System.Collections.Generic;
+using System;
+using System.Linq;
 
-namespace RendrixEngine.Models
+namespace RendrixEngine
 {
     public class Mesh
     {

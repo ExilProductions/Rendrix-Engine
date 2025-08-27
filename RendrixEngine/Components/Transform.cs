@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using RendrixEngine.Mathematics;
+﻿using System.Numerics;
+using System;
 
-namespace RendrixEngine.Components
+namespace RendrixEngine
 {
     public class Transform
     {

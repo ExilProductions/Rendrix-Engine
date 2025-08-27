@@ -1,6 +1,7 @@
-﻿using RendrixEngine.Components;
+﻿using System.Collections.Generic;
+using System;
 
-namespace RendrixEngine.Systems
+namespace RendrixEngine
 {
     public class SceneNode
     {

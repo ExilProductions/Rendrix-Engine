@@ -1,8 +1,4 @@
 ﻿using RendrixEngine;
-using RendrixEngine.Models;
-using RendrixEngine.Systems;
-using RendrixEngine.Components;
-using RendrixEngine.Mathematics;
 
 
 namespace TextureExample

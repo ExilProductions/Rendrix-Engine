@@ -1,4 +1,4 @@
-﻿namespace RendrixEngine.Mathematics
+﻿namespace RendrixEngine
 {
     public struct Vector2D
     {

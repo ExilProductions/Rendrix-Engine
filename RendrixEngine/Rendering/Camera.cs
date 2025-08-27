@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Numerics;
-using RendrixEngine.Mathematics;
 
-namespace RendrixEngine.Rendering
+namespace RendrixEngine
 {
     public class Camera
     {

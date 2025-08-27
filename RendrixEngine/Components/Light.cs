@@ -1,6 +1,4 @@
-﻿using RendrixEngine.Mathematics;
-
-namespace RendrixEngine.Components
+﻿namespace RendrixEngine
 {
     public enum LightType
     {

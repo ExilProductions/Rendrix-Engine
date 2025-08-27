@@ -1,6 +1,9 @@
 ﻿using System.Collections.Concurrent;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
-namespace RendrixEngine.Input
+namespace RendrixEngine
 {
     public class KeyboardInput
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace RendrixEngine.Mathematics
+namespace RendrixEngine
 {
     public static class Matrix4x4Extension
     {
