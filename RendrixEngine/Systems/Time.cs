@@ -8,13 +8,8 @@ namespace RendrixEngine
 {
     public class Time
     {
-        /// <summary>
-        /// Do not set this value directly.
-        /// </summary>
-        public static float DeltaTime { get; set; }
-        /// <summary>
-        /// Do not set this value directly.
-        /// </summary>
-        public static float TimeSinceStart { get; set; }
+        public static float DeltaTime { get; internal set; }
+
+        public static float TimeSinceStart { get; internal set; }
     }
 }
