@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace RendrixEngine
 {
     public class Renderer
     {
-        private Camera camera;
+        private readonly List<Camera> cameras;
         private readonly string asciiChars;
         private readonly float ambientStrength;
         private readonly Rasterizer rasterizer;
 
-        public int Width { get; }
-        public int Height { get; }
-
-        public Renderer(int screenWidth, int screenHeight, Camera camera, string asciiChars, float ambientStrength, float indirectLighting = 0.2f)
+        public Renderer(int screenWidth, int screenHeight, string asciiChars, float ambientStrength, float indirectLighting = 0.2f)
         {
             if (screenWidth <= 0 || screenHeight <= 0)
                 throw new ArgumentException("Width and height must be positive.");
@@ -24,12 +20,13 @@ namespace RendrixEngine
             if (ambientStrength < 0 || ambientStrength > 1)
                 throw new ArgumentOutOfRangeException(nameof(ambientStrength), "Ambient strength must be between 0 and 1.");
 
-            Width = screenWidth;
-            Height = screenHeight;
-            this.camera = camera ?? throw new ArgumentNullException(nameof(camera));
+            Window.Width = screenWidth;
+            Window.Height = screenHeight;
+
+            cameras = new List<Camera>();
             this.asciiChars = asciiChars;
             this.ambientStrength = ambientStrength;
-            rasterizer = new Rasterizer(Width, Height, asciiChars, indirectLighting);
+            rasterizer = new Rasterizer(asciiChars, indirectLighting);
         }
 
         public void Clear()
@@ -39,109 +36,209 @@ namespace RendrixEngine
 
         public void Render(SceneNode rootNode)
         {
+            if (Camera.Main == null)
+                throw new InvalidOperationException("No main camera set. Please add a Camera component and set it as Main.");
             if (rootNode == null)
                 throw new ArgumentNullException(nameof(rootNode));
 
-            UpdateComponents(rootNode);
+            
+            Camera mainCam = Camera.Main;
+            Matrix4x4 viewMatrix = mainCam.ViewMatrix;
+            Matrix4x4 projectionMatrix = mainCam.ProjectionMatrix;
 
-            var lights = new List<Light>();
-            CollectLights(rootNode, lights);
+            
+            UpdateComponentsIterative(rootNode);
 
+            
+            var lights = new List<Light>(16);
+            CollectLightsIterative(rootNode, lights);
+
+            
             Clear();
-            RenderNode(rootNode, lights);
-        }
 
-        private void UpdateComponents(SceneNode node)
-        {
-            node.Components.ForEach(c => c.Update());
-            foreach (var child in node.Children)
-                UpdateComponents(child);
-        }
+            
+            var stack = new Stack<SceneNode>();
+            stack.Push(rootNode);
 
-        private void CollectLights(SceneNode node, List<Light> lights)
-        {
-            node.Components.ForEach(c =>
+            while (stack.Count > 0)
             {
-                if (c is Light light)
-                    lights.Add(light);
-            });
+                SceneNode node = stack.Pop();
 
-            foreach (var child in node.Children)
-                CollectLights(child, lights);
-        }
+                
+                Matrix4x4 modelMatrix = node.Transform.WorldMatrix;
+                Matrix4x4 modelViewMatrix = Matrix4x4.Multiply(modelMatrix, viewMatrix);
 
-        private void RenderNode(SceneNode node, List<Light> lights)
-        {
-            node.Components.ForEach(c =>
-            {
-                if (c is MeshRenderer meshRenderer)
+                
+                var comps = node.Components;
+                for (int c = 0, cn = comps.Count; c < cn; c++)
                 {
-                    Matrix4x4 modelMatrix = node.Transform.WorldMatrix;
-                    Matrix4x4 modelViewMatrix = modelMatrix * camera.ViewMatrix;
-
-                    Texture? texture = meshRenderer.Mesh.Texture;
-                    bool hasUVs = meshRenderer.Mesh.UVs.Count > 0;
-
-                    foreach (var tri in meshRenderer.Mesh.Triangles)
+                    var comp = comps[c];
+                    if (comp is MeshRenderer meshRenderer)
                     {
-                        Vector3D v0_local = meshRenderer.Mesh.Vertices[tri[0]];
-                        Vector3D v1_local = meshRenderer.Mesh.Vertices[tri[1]];
-                        Vector3D v2_local = meshRenderer.Mesh.Vertices[tri[2]];
+                        var mesh = meshRenderer.Mesh;
+                        if (mesh == null) continue;
 
-                        Vector3D v0_view = modelViewMatrix.Transform(v0_local);
-                        Vector3D v1_view = modelViewMatrix.Transform(v1_local);
-                        Vector3D v2_view = modelViewMatrix.Transform(v2_local);
+                        
+                        var verts = mesh.Vertices;
+                        var tris = mesh.Triangles;
+                        var normals = mesh.Normals;
+                        var uvs = mesh.UVs;
+                        Texture? texture = mesh.Texture;
+                        bool hasUVs = uvs != null && uvs.Count > 0;
 
-                        Vector3D normal_view = Vector3D.Cross(v1_view - v0_view, v2_view - v0_view).Normalized;
-                        if (Vector3D.Dot(normal_view, v0_view) > 0) continue;
-
-                        Vector3D v0_world = modelMatrix.Transform(v0_local);
-                        Vector3D v1_world = modelMatrix.Transform(v1_local);
-                        Vector3D v2_world = modelMatrix.Transform(v2_local);
-
-                        Vector3D n0_world = modelMatrix.TransformNormal(meshRenderer.Mesh.Normals[tri[0]]);
-                        Vector3D n1_world = modelMatrix.TransformNormal(meshRenderer.Mesh.Normals[tri[1]]);
-                        Vector3D n2_world = modelMatrix.TransformNormal(meshRenderer.Mesh.Normals[tri[2]]);
-
-                        Vector2D p0 = Project(v0_view);
-                        Vector2D p1 = Project(v1_view);
-                        Vector2D p2 = Project(v2_view);
-
-                        Vector2D uv0 = Vector2D.Zero, uv1 = Vector2D.Zero, uv2 = Vector2D.Zero;
-
-                        if (texture != null && hasUVs)
+                        for (int t = 0, tn = tris.Length; t < tn; t++)
                         {
-                            uv0 = meshRenderer.Mesh.UVs[tri[0]];
-                            uv1 = meshRenderer.Mesh.UVs[tri[1]];
-                            uv2 = meshRenderer.Mesh.UVs[tri[2]];
-                        }
+                            var tri = tris[t];
+                            
+                            int i0 = tri[0];
+                            int i1 = tri[1];
+                            int i2 = tri[2];
 
-                        rasterizer.RasterizeLit(
-                            p0, p1, p2,
-                            v0_view.Z, v1_view.Z, v2_view.Z,
-                            v0_world, v1_world, v2_world,
-                            n0_world, n1_world, n2_world,
-                            uv0, uv1, uv2,
-                            texture,
-                            lights, ambientStrength, asciiChars);
+                            
+                            Vector3D v0_local = verts[i0];
+                            Vector3D v1_local = verts[i1];
+                            Vector3D v2_local = verts[i2];
+
+                            
+                            Vector3D v0_view = modelViewMatrix.Transform(v0_local);
+                            Vector3D v1_view = modelViewMatrix.Transform(v1_local);
+                            Vector3D v2_view = modelViewMatrix.Transform(v2_local);
+
+                            
+                            Vector3D edge1 = v1_view - v0_view;
+                            Vector3D edge2 = v2_view - v0_view;
+                            Vector3D normal_view = Vector3D.Cross(edge1, edge2).Normalized;
+                            if (Vector3D.Dot(normal_view, v0_view) > 0f) continue;
+
+                            
+                            
+                            
+                            
+                            if (v0_view.Z <= 0f && v1_view.Z <= 0f && v2_view.Z <= 0f) continue;
+
+                            
+                            Vector3D v0_world = modelMatrix.Transform(v0_local);
+                            Vector3D v1_world = modelMatrix.Transform(v1_local);
+                            Vector3D v2_world = modelMatrix.Transform(v2_local);
+
+                            
+                            Vector3D n0_world = modelMatrix.TransformNormal(normals[i0]);
+                            Vector3D n1_world = modelMatrix.TransformNormal(normals[i1]);
+                            Vector3D n2_world = modelMatrix.TransformNormal(normals[i2]);
+
+                            
+                            Vector2D p0 = Project(v0_view, projectionMatrix);
+                            Vector2D p1 = Project(v1_view, projectionMatrix);
+                            Vector2D p2 = Project(v2_view, projectionMatrix);
+
+                            
+                            
+                            bool p0Valid = p0.X >= 0f && p0.Y >= 0f;
+                            bool p1Valid = p1.X >= 0f && p1.Y >= 0f;
+                            bool p2Valid = p2.X >= 0f && p2.Y >= 0f;
+                            if (!p0Valid && !p1Valid && !p2Valid) continue;
+
+                            
+                            Vector2D uv0 = Vector2D.Zero;
+                            Vector2D uv1 = Vector2D.Zero;
+                            Vector2D uv2 = Vector2D.Zero;
+                            if (texture != null && hasUVs)
+                            {
+                                uv0 = uvs[i0];
+                                uv1 = uvs[i1];
+                                uv2 = uvs[i2];
+                            }
+
+                            
+                            rasterizer.RasterizeLit(
+                                p0, p1, p2,
+                                v0_view.Z, v1_view.Z, v2_view.Z,
+                                v0_world, v1_world, v2_world,
+                                n0_world, n1_world, n2_world,
+                                uv0, uv1, uv2,
+                                texture,
+                                lights, ambientStrength, asciiChars);
+                        }
                     }
                 }
-            });
 
-            foreach (var child in node.Children)
-                RenderNode(child, lights);
+                
+                var children = node.Children;
+                for (int i = children.Count - 1; i >= 0; i--)
+                    stack.Push(children[i]);
+            }
         }
 
-        private Vector2D Project(Vector3D v)
+        
+        private void UpdateComponentsIterative(SceneNode root)
         {
-            Vector3D vProj = camera.ProjectionMatrix.Transform(v);
-            if (vProj.Z <= 0) return new Vector2D(-1, -1);
+            var stack = new Stack<SceneNode>();
+            stack.Push(root);
+
+            while (stack.Count > 0)
+            {
+                var node = stack.Pop();
+                var comps = node.Components;
+                for (int i = 0, n = comps.Count; i < n; i++)
+                    comps[i].Update();
+
+                var children = node.Children;
+                for (int i = 0; i < children.Count; i++)
+                    stack.Push(children[i]);
+            }
+        }
+
+        
+        private void CollectLightsIterative(SceneNode root, List<Light> outLights)
+        {
+            var stack = new Stack<SceneNode>();
+            stack.Push(root);
+
+            while (stack.Count > 0)
+            {
+                var node = stack.Pop();
+                var comps = node.Components;
+                for (int i = 0, n = comps.Count; i < n; i++)
+                {
+                    var c = comps[i];
+                    if (c is Light light)
+                        outLights.Add(light);
+                }
+
+                var children = node.Children;
+                for (int i = 0; i < children.Count; i++)
+                    stack.Push(children[i]);
+            }
+        }
+
+        
+        
+        private Vector2D Project(Vector3D vView, Matrix4x4 projectionMatrix)
+        {
+            Vector3D vProj = projectionMatrix.Transform(vView);
+
+            
+            if (vProj.Z <= 0f) return new Vector2D(-1f, -1f);
+
+            
             float aspectCorrection = 0.65f;
-            float x = (vProj.X * 0.5f + 0.5f) * Width;
-            float y = (1 - (vProj.Y * 0.5f * aspectCorrection + 0.5f)) * Height;
-            x = Math.Clamp(x, 0, Width);
-            y = Math.Clamp(y, 0, Height);
+
+            
+            float x = (vProj.X * 0.5f + 0.5f) * Window.Width;
+            float y = (1f - (vProj.Y * 0.5f * aspectCorrection + 0.5f)) * Window.Height;
+
+            x = ClampF(x, 0f, Window.Width);
+            y = ClampF(y, 0f, Window.Height);
+
             return new Vector2D(x, y);
+        }
+
+        
+        private static float ClampF(float v, float a, float b)
+        {
+            if (v < a) return a;
+            if (v > b) return b;
+            return v;
         }
 
         public string GetFrame()

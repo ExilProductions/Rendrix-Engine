@@ -3,79 +3,59 @@ using System.Collections.Generic;
 
 namespace RendrixEngine
 {
+
     public class Rasterizer
     {
-        private readonly char[,] screenBuffer;
-        private readonly float[,] zBuffer;
-        public int Width { get; }
-        public int Height { get; }
-        private readonly string asciiChars;
+        private readonly char[] screenBuffer;
+        private readonly float[] zBuffer;
+        private readonly char[] asciiCharsArr;
+        private readonly int width;
+        private readonly int height;
+        private readonly int rowStride;
         private const float FalloffConstant = 0.1f;
         private float previousAverageBrightness = 0f;
-        private float indirectFactor;
+        private readonly float indirectFactor;
+        private readonly int asciiMaxIndex;
 
-        public Rasterizer(int width, int height, string asciiChars, float indirectFactor = 0.2f)
+
+        public Rasterizer(string asciiChars, float indirectFactor = 0.2f)
         {
-            if (width <= 0 || height <= 0)
+            if (Window.Width <= 0 || Window.Height <= 0)
                 throw new ArgumentException("Width and height must be positive.");
             if (string.IsNullOrEmpty(asciiChars))
                 throw new ArgumentException("ASCII character set cannot be empty.");
 
-            Width = width;
-            Height = height;
-            this.asciiChars = asciiChars;
+            this.width = Window.Width;
+            this.height = Window.Height;
+            this.rowStride = this.width + 1;
+            this.screenBuffer = new char[this.rowStride * this.height];
+            this.zBuffer = new float[this.width * this.height];
+            this.asciiCharsArr = asciiChars.ToCharArray();
+            this.asciiMaxIndex = Math.Max(1, asciiCharsArr.Length - 1);
             this.indirectFactor = indirectFactor;
-            screenBuffer = new char[height, width];
-            zBuffer = new float[height, width];
+
             Clear();
         }
 
+
         public void Clear()
         {
-            for (int j = 0; j < Height; j++)
-                for (int i = 0; i < Width; i++)
-                {
-                    screenBuffer[j, i] = ' ';
-                    zBuffer[j, i] = float.MaxValue;
-                }
-        }
-
-        public void RasterizeTriangle(Vector2D p0, Vector2D p1, Vector2D p2, float z0, float z1, float z2, char asciiChar)
-        {
-            float minX = Math.Min(p0.X, Math.Min(p1.X, p2.X));
-            float maxX = Math.Max(p0.X, Math.Max(p1.X, p2.X));
-            float minY = Math.Min(p0.Y, Math.Min(p1.Y, p2.Y));
-            float maxY = Math.Max(p0.Y, Math.Max(p1.Y, p2.Y));
-
-            int startI = Math.Max(0, (int)Math.Floor(minX));
-            int endI = Math.Min(Width - 1, (int)Math.Ceiling(maxX));
-            int startJ = Math.Max(0, (int)Math.Floor(minY));
-            int endJ = Math.Min(Height - 1, (int)Math.Ceiling(maxY));
-
-            for (int j = startJ; j <= endJ; j++)
+            Array.Fill(zBuffer, float.MaxValue);
+            for (int r = 0; r < height; r++)
             {
-                for (int i = startI; i <= endI; i++)
-                {
-                    Vector2D p = new Vector2D(i + 0.5f, j + 0.5f);
-                    float area = (p1.Y - p2.Y) * (p0.X - p2.X) + (p2.X - p1.X) * (p0.Y - p2.Y);
-                    if (Math.Abs(area) < 1e-6f) continue;
+                int baseIdx = r * rowStride;
 
-                    float u = ((p1.Y - p2.Y) * (p.X - p2.X) + (p2.X - p1.X) * (p.Y - p2.Y)) / area;
-                    float v = ((p2.Y - p0.Y) * (p.X - p2.X) + (p0.X - p2.X) * (p.Y - p2.Y)) / area;
-                    float w = 1 - u - v;
+                for (int c = 0; c < width; c++)
+                    screenBuffer[baseIdx + c] = ' ';
 
-                    if (u >= 0 && v >= 0 && w >= 0)
-                    {
-                        float z = u * z0 + v * z1 + w * z2;
-                        if (z < zBuffer[j, i])
-                        {
-                            zBuffer[j, i] = z;
-                            screenBuffer[j, i] = asciiChar;
-                        }
-                    }
-                }
+                screenBuffer[baseIdx + width] = '\n';
             }
         }
+
+
+        private int ZIndex(int x, int y) => y * width + x;
+        private int ScreenIndex(int x, int y) => y * rowStride + x;
+
 
         public void RasterizeLit(
             Vector2D p0, Vector2D p1, Vector2D p2,
@@ -86,122 +66,186 @@ namespace RendrixEngine
             Texture? texture,
             List<Light> lights, float ambientStrength, string asciiChars)
         {
+
             float minX = Math.Min(p0.X, Math.Min(p1.X, p2.X));
             float maxX = Math.Max(p0.X, Math.Max(p1.X, p2.X));
             float minY = Math.Min(p0.Y, Math.Min(p1.Y, p2.Y));
             float maxY = Math.Max(p0.Y, Math.Max(p1.Y, p2.Y));
 
-            int startI = Math.Max(0, (int)Math.Floor(minX));
-            int endI = Math.Min(Width - 1, (int)Math.Ceiling(maxX));
-            int startJ = Math.Max(0, (int)Math.Floor(minY));
-            int endJ = Math.Min(Height - 1, (int)Math.Ceiling(maxY));
+            int startX = Math.Max(0, (int)Math.Floor(minX));
+            int endX = Math.Min(width - 1, (int)Math.Ceiling(maxX));
+            int startY = Math.Max(0, (int)Math.Floor(minY));
+            int endY = Math.Min(height - 1, (int)Math.Ceiling(maxY));
 
-            for (int j = startJ; j <= endJ; j++)
+
+            float area = (p1.Y - p2.Y) * (p0.X - p2.X) + (p2.X - p1.X) * (p0.Y - p2.Y);
+            if (Math.Abs(area) < 1e-6f) return;
+            float invArea = 1.0f / area;
+
+
+            float A0 = (p1.Y - p2.Y);
+            float B0 = (p2.X - p1.X);
+            float C0 = p1.X * p2.Y - p2.X * p1.Y;
+
+            float A1 = (p2.Y - p0.Y);
+            float B1 = (p0.X - p2.X);
+            float C1 = p2.X * p0.Y - p0.X * p2.Y;
+
+            float A2 = (p0.Y - p1.Y);
+            float B2 = (p1.X - p0.X);
+            float C2 = p0.X * p1.Y - p1.X * p0.Y;
+
+            bool hasTexture = texture != null;
+            int texW = hasTexture ? texture!.Width : 0;
+            int texH = hasTexture ? texture!.Height : 0;
+
+
+            int localWidth = width;
+            int localRowStride = rowStride;
+            char[] localScreen = screenBuffer;
+            float[] localZ = zBuffer;
+            char[] localAscii = asciiCharsArr;
+            int localAsciiMax = asciiMaxIndex;
+            float prevAvg = previousAverageBrightness;
+            float localIndirect = indirectFactor;
+
+
+            for (int y = startY; y <= endY; y++)
             {
-                for (int i = startI; i <= endI; i++)
+
+                float py = y + 0.5f;
+                float ex0 = A0 * (startX + 0.5f) + B0 * py + C0;
+                float ex1 = A1 * (startX + 0.5f) + B1 * py + C1;
+                float ex2 = A2 * (startX + 0.5f) + B2 * py + C2;
+
+                for (int x = startX; x <= endX; x++)
                 {
-                    Vector2D p = new Vector2D(i + 0.5f, j + 0.5f);
-                    float area = (p1.Y - p2.Y) * (p0.X - p2.X) + (p2.X - p1.X) * (p0.Y - p2.Y);
-                    if (Math.Abs(area) < 1e-6f) continue;
 
-                    float u_bary = ((p1.Y - p2.Y) * (p.X - p2.X) + (p2.X - p1.X) * (p.Y - p2.Y)) / area;
-                    float v_bary = ((p2.Y - p0.Y) * (p.X - p2.X) + (p0.X - p2.X) * (p.Y - p2.Y)) / area;
-                    float w_bary = 1 - u_bary - v_bary;
-
-                    if (u_bary >= 0 && v_bary >= 0 && w_bary >= 0)
+                    bool inside = (ex0 * area >= 0f) && (ex1 * area >= 0f) && (ex2 * area >= 0f);
+                    if (inside)
                     {
-                        float z = u_bary * z0 + v_bary * z1 + w_bary * z2;
-                        if (z < zBuffer[j, i])
+                        int zi = y * localWidth + x;
+
+                        float w0 = ex0 * invArea;
+                        float w1 = ex1 * invArea;
+                        float w2 = ex2 * invArea;
+
+
+                        float z = w0 * z0 + w1 * z1 + w2 * z2;
+                        if (z < localZ[zi])
                         {
-                            Vector3D worldPos = worldPos0 * u_bary + worldPos1 * v_bary + worldPos2 * w_bary;
-                            Vector3D normal = (normal0 * u_bary + normal1 * v_bary + normal2 * w_bary).Normalized;
-                            float lightingBrightness = CalculateLighting(worldPos, normal, lights, ambientStrength);
+                            localZ[zi] = z;
+
+
+                            Vector3D worldPos = worldPos0 * w0 + worldPos1 * w1 + worldPos2 * w2;
+                            Vector3D normal = (normal0 * w0 + normal1 * w1 + normal2 * w2).Normalized;
+
+
+                            float lightingBrightness = CalculateLighting(worldPos, normal, lights, ambientStrength, prevAvg, localIndirect);
 
                             float finalBrightness;
-                            if (texture != null)
+                            if (hasTexture)
                             {
-                                var interpolatedUV = uv0 * u_bary + uv1 * v_bary + uv2 * w_bary;
-                                float u_coord = Math.Clamp(interpolatedUV.X, 0.0f, 1.0f);
-                                float v_coord = Math.Clamp(interpolatedUV.Y, 0.0f, 1.0f);
-
-                                var texColor = texture.GetPixel((int)(u_coord * (texture.Width - 1)), (int)(v_coord * (texture.Height - 1)));
-                                float textureBrightness = (texColor.R / 255f * 0.299f) + (texColor.G / 255f * 0.587f) + (texColor.B / 255f * 0.114f);
-                                finalBrightness = textureBrightness * lightingBrightness;
+                                Vector2D uv = uv0 * w0 + uv1 * w1 + uv2 * w2;
+                                float u_clamped = ClampF(uv.X, 0f, 1f);
+                                float v_clamped = ClampF(uv.Y, 0f, 1f);
+                                int tx = (int)(u_clamped * (texW - 1));
+                                int ty = (int)(v_clamped * (texH - 1));
+                                var texColor = texture!.GetPixel(tx, ty);
+                                float texBrightness = (texColor.R / 255f * 0.299f) + (texColor.G / 255f * 0.587f) + (texColor.B / 255f * 0.114f);
+                                finalBrightness = texBrightness * lightingBrightness;
                             }
                             else
                             {
                                 finalBrightness = lightingBrightness;
                             }
 
-                            finalBrightness = Math.Clamp(finalBrightness, 0, 1);
-                            char asciiChar = asciiChars[(int)(finalBrightness * (asciiChars.Length - 1))];
-
-                            zBuffer[j, i] = z;
-                            screenBuffer[j, i] = asciiChar;
+                            finalBrightness = ClampF(finalBrightness, 0f, 1f);
+                            int asciiIdx = (int)(finalBrightness * localAsciiMax);
+                            localScreen[y * localRowStride + x] = localAscii[asciiIdx];
                         }
                     }
+
+
+                    ex0 += A0;
+                    ex1 += A1;
+                    ex2 += A2;
                 }
             }
         }
 
-        private float CalculateLighting(Vector3D worldPos, Vector3D normal, List<Light> lights, float ambientStrength)
+
+        private float CalculateLighting(Vector3D worldPos, Vector3D normal, List<Light> lights, float ambientStrength, float previousAvg, float indirectFactorLocal)
         {
             float brightness = ambientStrength;
 
-            foreach (var light in lights)
+            for (int i = 0; i < lights.Count; i++)
             {
-                float diffuse = 0;
+                var light = lights[i];
+                float diffuse = 0f;
                 if (light.Type == LightType.Directional)
                 {
-                    diffuse = Math.Max(0, Vector3D.Dot(normal, light.Direction)) * light.Intensity;
+                    diffuse = Math.Max(0f, Vector3D.Dot(normal, light.Direction)) * light.Intensity;
                 }
                 else
                 {
-                    Vector3D lightDir = (light.Transform.Position - worldPos);
+                    Vector3D lightDir = light.Transform.Position - worldPos;
                     float distance = lightDir.Length;
-
                     if (distance <= light.Range)
                     {
                         lightDir = lightDir.Normalized;
                         float falloff = light.Intensity / (distance * distance + FalloffConstant);
-                        diffuse = Math.Max(0, Vector3D.Dot(normal, lightDir)) * falloff;
+                        diffuse = Math.Max(0f, Vector3D.Dot(normal, lightDir)) * falloff;
                     }
                 }
+
                 brightness += diffuse;
             }
 
-            float indirectLighting = indirectFactor * previousAverageBrightness;
+            float indirectLighting = indirectFactorLocal * previousAvg;
             brightness += indirectLighting;
 
             return brightness;
         }
 
+
         public string GetFrame()
         {
-            var sb = new System.Text.StringBuilder();
-            float totalBrightness = 0;
-            int pixelCount = Width * Height;
+            float totalBrightness = 0f;
+            int pixelCount = width * height;
+            int asciiLen = asciiCharsArr.Length;
 
-            for (int j = 0; j < Height; j++)
+            for (int y = 0; y < height; y++)
             {
-                for (int i = 0; i < Width; i++)
+                int rowBase = y * rowStride;
+                for (int x = 0; x < width; x++)
                 {
-                    char c = screenBuffer[j, i];
-                    sb.Append(c);
+                    char c = screenBuffer[rowBase + x];
                     if (c != ' ')
                     {
-                        int index = asciiChars.IndexOf(c);
-                        if (index != -1)
+
+                        for (int k = 0; k < asciiLen; k++)
                         {
-                            totalBrightness += (float)index / (asciiChars.Length - 1);
+                            if (asciiCharsArr[k] == c)
+                            {
+                                totalBrightness += (float)k / (asciiLen - 1);
+                                break;
+                            }
                         }
                     }
                 }
-                sb.Append('\n');
             }
 
             previousAverageBrightness = totalBrightness / pixelCount;
-            return sb.ToString();
+            return new string(screenBuffer);
+        }
+
+
+        private static float ClampF(float v, float min, float max)
+        {
+            if (v < min) return min;
+            if (v > max) return max;
+            return v;
         }
     }
 }

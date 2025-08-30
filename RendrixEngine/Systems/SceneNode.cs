@@ -10,6 +10,7 @@ namespace RendrixEngine
         public List<SceneNode> Children { get; } = new();
 
         public string Name { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public SceneNode(string name)
         {
@@ -34,6 +35,18 @@ namespace RendrixEngine
                 throw new InvalidOperationException("Child does not belong to this parent.");
             child.Transform.Parent = null;
             Children.Remove(child);
+        }
+
+        public void SetActive(bool isActive)
+        {
+            IsActive = isActive;
+            foreach (var component in Components)
+            {
+                if (isActive)
+                    component.OnAwake();
+                else
+                    component.OnDisable();
+            }
         }
 
         public T AddComponent<T>() where T : Component, new()

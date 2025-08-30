@@ -8,6 +8,7 @@ namespace RendrixEngine
 {
     public abstract class Component
     {
+        public virtual bool Enabled { get; set; } = true;
         public virtual Transform Transform { get; set; }
 
         public virtual void OnAwake()

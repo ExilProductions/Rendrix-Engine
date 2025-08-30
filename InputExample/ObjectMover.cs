@@ -8,27 +8,27 @@ namespace InputExample
 
         public override void Update()
         {
-            if(KeyboardInput.GetKey(ConsoleKey.DownArrow))
+            if (KeyboardInput.GetKey(ConsoleKey.DownArrow))
             {
                 Transform.Translate(new Vector3D(0, -speed * Time.DeltaTime, 0));
             }
-            if(KeyboardInput.GetKey(ConsoleKey.UpArrow))
+            if (KeyboardInput.GetKey(ConsoleKey.UpArrow))
             {
                 Transform.Translate(new Vector3D(0, speed * Time.DeltaTime, 0));
             }
-            if(KeyboardInput.GetKey(ConsoleKey.LeftArrow))
+            if (KeyboardInput.GetKey(ConsoleKey.LeftArrow))
             {
                 Transform.Translate(new Vector3D(-speed * Time.DeltaTime, 0, 0));
             }
-            if(KeyboardInput.GetKey(ConsoleKey.RightArrow))
+            if (KeyboardInput.GetKey(ConsoleKey.RightArrow))
             {
                 Transform.Translate(new Vector3D(speed * Time.DeltaTime, 0, 0));
             }
-            if(KeyboardInput.GetKey(ConsoleKey.Q))
+            if (KeyboardInput.GetKey(ConsoleKey.Q))
             {
                 Transform.Translate(new Vector3D(0, 0, speed * Time.DeltaTime));
             }
-            if(KeyboardInput.GetKey(ConsoleKey.E))
+            if (KeyboardInput.GetKey(ConsoleKey.E))
             {
                 Transform.Translate(new Vector3D(0, 0, -speed * Time.DeltaTime));
             }
