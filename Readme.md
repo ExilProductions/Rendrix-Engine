@@ -87,7 +87,7 @@ A pure C# ASCII-based game engine.
 * [x] Entity-component system
 * [ ] Color and monochrome rendering modes
 * [ ] Custom Avalonia window for character rendering
-* [ ] Camera as a separate component with multi-camera support
+* [x] Camera as a separate component with multi-camera support
 * [ ] Configurable renderer at runtime
 
 ---
