@@ -6,12 +6,10 @@ namespace RendrixEngine
 {
     public class Mesh
     {
-        public string Name { get; set; } = string.Empty;
         public List<Vector3D> Vertices { get; }
         public List<Vector3D> Normals { get; }
         public List<Vector2D> UVs { get; }
         public Texture? Texture { get; set; }
-        public List<int> Indices { get; } = new List<int>();
         public int[][] Triangles { get; }
 
         public Mesh()

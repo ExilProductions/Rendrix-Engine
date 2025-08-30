@@ -31,6 +31,14 @@ namespace CubeExample
                 );
 
                 var mesh = Mesh.CreateCube(2f);
+                var camera = new SceneNode("Camera");
+                Camera cameraComponent = camera.AddComponent<Camera>();
+                camera.Transform.Position = new Vector3D(0, 0, -5);
+                cameraComponent.Target = Vector3D.Zero;
+                cameraComponent.Up = Vector3D.Up;
+                cameraComponent.Fov = 60f;
+                cameraComponent.NearPlane = 0.1f;
+                cameraComponent.FarPlane = 100f;
 
                 Rotator rootNodeRotator = engine.RootNode.AddComponent<Rotator>();
                 rootNodeRotator.direction = new Vector3D(0, 1, 0);

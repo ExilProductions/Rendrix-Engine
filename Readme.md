@@ -89,6 +89,7 @@ A pure C# ASCII-based game engine.
 * [ ] Custom Avalonia window for character rendering
 * [x] Camera as a separate component with multi-camera support
 * [ ] Configurable renderer at runtime
+* [ ] Audio Engine using NAudio
 
 ---
 
