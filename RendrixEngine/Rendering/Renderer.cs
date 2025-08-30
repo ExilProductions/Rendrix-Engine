@@ -127,8 +127,6 @@ namespace RendrixEngine
                             Vector2D p1 = Project(v1_view, projectionMatrix);
                             Vector2D p2 = Project(v2_view, projectionMatrix);
 
-                            
-                            
                             bool p0Valid = p0.X >= 0f && p0.Y >= 0f;
                             bool p1Valid = p1.X >= 0f && p1.Y >= 0f;
                             bool p2Valid = p2.X >= 0f && p2.Y >= 0f;
