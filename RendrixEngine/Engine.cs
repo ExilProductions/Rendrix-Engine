@@ -1,12 +1,9 @@
-﻿using System;
-using System.Text;
-using System.Threading;
+﻿using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace RendrixEngine
 {
-
     public class Engine : IDisposable
     {
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -72,12 +69,10 @@ namespace RendrixEngine
         public Renderer Renderer { get; private set; }
         public SceneNode RootNode { get; } = new SceneNode("Root");
 
-
         private volatile bool isRunning;
 
         private const string asciiChars = " ░▒▓█";
-
-
+        
         private double targetFrameMs;
 
         public Engine(int width, int height, int targetFPS, string title, float ambientStrength, float indirectLighting = 0.2f)
@@ -147,7 +142,6 @@ namespace RendrixEngine
             RunLoop();
         }
 
-
         private void RunLoop()
         {
             isRunning = true;
@@ -205,12 +199,10 @@ namespace RendrixEngine
             }
         }
 
-
         public void Stop()
         {
             isRunning = false;
         }
-
 
         public void Dispose()
         {

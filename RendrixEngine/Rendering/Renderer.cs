@@ -109,10 +109,6 @@ namespace RendrixEngine
                             Vector3D edge2 = v2_view - v0_view;
                             Vector3D normal_view = Vector3D.Cross(edge1, edge2).Normalized;
                             if (Vector3D.Dot(normal_view, v0_view) > 0f) continue;
-
-                            
-                            
-                            
                             
                             if (v0_view.Z <= 0f && v1_view.Z <= 0f && v2_view.Z <= 0f) continue;
 
@@ -180,7 +176,10 @@ namespace RendrixEngine
                 var node = stack.Pop();
                 var comps = node.Components;
                 for (int i = 0, n = comps.Count; i < n; i++)
-                    comps[i].Update();
+                {
+                    if(comps[i].Enabled)
+                        comps[i].Update();
+                }
 
                 var children = node.Children;
                 for (int i = 0; i < children.Count; i++)
