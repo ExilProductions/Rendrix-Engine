@@ -5,7 +5,6 @@ namespace RendrixEngine
 {
     public class Camera : Component
 {
-    public Vector3D Position { get; set; }
     public Vector3D Target { get; set; }
     public Vector3D Up { get; set; }
     public float Fov { get; set; }
