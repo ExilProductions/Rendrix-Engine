@@ -22,7 +22,7 @@ namespace RendrixEngine
         if (Main == null)
             Main = this;
 
-        AspectRatio = (float)Renderer.Width / Renderer.Height;
+        AspectRatio = (float)Window.Width / Window.Height;
         ViewMatrix = Matrix4x4Extension.CreateLookAt(Transform.Position, Target, Up);
         ProjectionMatrix = Matrix4x4Extension.CreatePerspective(Fov, AspectRatio, NearPlane, FarPlane);
     }
