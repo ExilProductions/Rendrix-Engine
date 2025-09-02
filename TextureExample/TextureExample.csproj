@@ -8,26 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Resources.Extensions" Version="10.0.0-preview.6.25358.103" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\RendrixEngine\RendrixEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Assets.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Assets.resx</DependentUpon>
-    </Compile>
+    <EmbeddedResource Include="Assets\Textures\checker_texture.png" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Assets.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Assets.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
 
 </Project>

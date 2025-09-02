@@ -1,4 +1,5 @@
 ﻿using RendrixEngine;
+using RendrixEngine.Resources;
 
 
 namespace TextureExample
@@ -10,7 +11,8 @@ namespace TextureExample
             Engine engine = new Engine(120, 40, 144, "Rendrix Engine Texture Example", 0.6f);
 
             var mesh = Mesh.CreateCube(2.5f);
-            mesh.Texture = new Texture(Assets.checker_texture);
+            var texture = Texture.FromBytes(Textures.LoadResource("Assets.Textures.checker_texture.png"));
+            mesh.Texture = texture;
             var cubeObject = new SceneNode("Cube");
             var meshRenderer = cubeObject.AddComponent<MeshRenderer>();
             meshRenderer.Mesh = mesh;
