@@ -106,9 +106,6 @@ namespace RendrixEngine
                 _mouseReleasedThisFrame.Add(button);
             }
         }
-
-        
-        
         
         private void DispatcherUpdate()
         {

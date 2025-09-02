@@ -15,6 +15,19 @@ namespace RendrixEngine
 
         public int ResolutionColumns => _columns;
         public int ResolutionRows => _rows;
+        public static readonly StyledProperty<IBrush> BackgroundProperty =
+            AvaloniaProperty.Register<ConsoleSurface, IBrush>(nameof(Background));
+
+        public IBrush Background
+        {
+            get => GetValue(BackgroundProperty);
+            set => SetValue(BackgroundProperty, value);
+        }
+
+        public ConsoleSurface()
+        {
+            Background = Brushes.Black; // default
+        }
 
         public void SetResolution(int columns, int rows)
         {
@@ -43,19 +56,6 @@ namespace RendrixEngine
             if (x < 0 || x >= _columns || y < 0 || y >= _rows) return;
             _buffer[y, x] = c;
         }
-
-        public void PutString(int x, int y, string text)
-        {
-            if (y < 0 || y >= _rows) return;
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                int px = x + i;
-                if (px >= 0 && px < _columns)
-                    _buffer[y, px] = text[i];
-            }
-        }
-
         public void EndFrame()
         {
             InvalidateVisual();

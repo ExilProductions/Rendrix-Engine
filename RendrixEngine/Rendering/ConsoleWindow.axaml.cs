@@ -21,7 +21,6 @@ namespace RendrixEngine
 
         public void Clear(char c = ' ') => Surface.Clear(c);
         public void PutChar(int x, int y, char c) => Surface.PutChar(x, y, c);
-        public void PutString(int x, int y, string text) => Surface.PutString(x, y, text);
         public void EndFrame() => Surface.EndFrame();
 
         public string Title

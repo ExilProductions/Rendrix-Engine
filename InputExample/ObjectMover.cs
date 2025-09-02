@@ -1,4 +1,5 @@
 ﻿using RendrixEngine;
+using Avalonia.Input;
 
 namespace InputExample
 {
@@ -8,27 +9,38 @@ namespace InputExample
 
         public override void Update()
         {
-            if (KeyboardInput.GetKey(ConsoleKey.DownArrow))
+            
+            if (InputManager.GetKey(Key.Down))
             {
                 Transform.Translate(new Vector3D(0, -speed * Time.DeltaTime, 0));
             }
-            if (KeyboardInput.GetKey(ConsoleKey.UpArrow))
+
+            
+            if (InputManager.GetKey(Key.Up))
             {
                 Transform.Translate(new Vector3D(0, speed * Time.DeltaTime, 0));
             }
-            if (KeyboardInput.GetKey(ConsoleKey.LeftArrow))
+
+            
+            if (InputManager.GetKey(Key.Left))
             {
                 Transform.Translate(new Vector3D(-speed * Time.DeltaTime, 0, 0));
             }
-            if (KeyboardInput.GetKey(ConsoleKey.RightArrow))
+
+            
+            if (InputManager.GetKey(Key.Right))
             {
                 Transform.Translate(new Vector3D(speed * Time.DeltaTime, 0, 0));
             }
-            if (KeyboardInput.GetKey(ConsoleKey.Q))
+
+            
+            if (InputManager.GetKey(Key.Q))
             {
                 Transform.Translate(new Vector3D(0, 0, speed * Time.DeltaTime));
             }
-            if (KeyboardInput.GetKey(ConsoleKey.E))
+
+            
+            if (InputManager.GetKey(Key.E))
             {
                 Transform.Translate(new Vector3D(0, 0, -speed * Time.DeltaTime));
             }

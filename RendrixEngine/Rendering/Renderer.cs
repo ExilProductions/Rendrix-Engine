@@ -175,8 +175,9 @@ namespace RendrixEngine
                 var comps = node.Components;
                 for (int i = 0, n = comps.Count; i < n; i++)
                 {
-                    if(comps[i].Enabled)
-                        comps[i].Update();
+                    if(!comps[i].Enabled)
+                        continue;
+                    comps[i].Update();
                 }
 
                 var children = node.Children;
