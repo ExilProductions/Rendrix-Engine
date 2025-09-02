@@ -86,10 +86,11 @@ A pure C# ASCII-based game engine.
 * [x] Lighting system
 * [x] Entity-component system
 * [ ] Color and monochrome rendering modes
-* [ ] Custom Avalonia window for character rendering
+* [x] Custom Avalonia window for character rendering
 * [x] Camera as a separate component with multi-camera support
 * [ ] Configurable renderer at runtime
 * [ ] Audio Engine using NAudio
++ [ ] Physics Engine using a Custom Physics Engine or a third party one
 
 ---
 
