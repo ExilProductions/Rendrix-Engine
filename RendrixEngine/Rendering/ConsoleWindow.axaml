@@ -1,10 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:RendrixEngine.Rendering"
-        x:Class="RendrixEngine.Rendering.ConsoleWindow"
+        xmlns:local="clr-namespace:RendrixEngine"
+        x:Class="RendrixEngine.ConsoleWindow"
         Title="ASCII Engine Window"
         Width="800" Height="600"
-        CanResize="True">
+        CanResize="False">
     <Grid>
         <local:ConsoleSurface x:Name="Surface" Background="Black"/>
     </Grid>

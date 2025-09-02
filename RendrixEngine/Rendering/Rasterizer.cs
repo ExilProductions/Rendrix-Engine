@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RendrixEngine
 {
 
-    public class Rasterizer
+    internal class Rasterizer
     {
         private readonly char[] screenBuffer;
         private readonly float[] zBuffer;
@@ -20,13 +20,13 @@ namespace RendrixEngine
 
         public Rasterizer(string asciiChars, float indirectFactor = 0.2f)
         {
-            if (Window.Width <= 0 || Window.Height <= 0)
+            if (WindowSettings.Width <= 0 || WindowSettings.Height <= 0)
                 throw new ArgumentException("Width and height must be positive.");
             if (string.IsNullOrEmpty(asciiChars))
                 throw new ArgumentException("ASCII character set cannot be empty.");
 
-            this.width = Window.Width;
-            this.height = Window.Height;
+            this.width = WindowSettings.Width;
+            this.height = WindowSettings.Height;
             this.rowStride = this.width + 1;
             this.screenBuffer = new char[this.rowStride * this.height];
             this.zBuffer = new float[this.width * this.height];

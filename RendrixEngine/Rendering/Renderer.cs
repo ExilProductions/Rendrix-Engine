@@ -20,8 +20,8 @@ namespace RendrixEngine
             if (ambientStrength < 0 || ambientStrength > 1)
                 throw new ArgumentOutOfRangeException(nameof(ambientStrength), "Ambient strength must be between 0 and 1.");
 
-            Window.Width = screenWidth;
-            Window.Height = screenHeight;
+            WindowSettings.Width = screenWidth;
+            WindowSettings.Height = screenHeight;
 
             cameras = new List<Camera>();
             this.asciiChars = asciiChars;
@@ -221,11 +221,11 @@ namespace RendrixEngine
             float aspectCorrection = 0.65f;
 
             
-            float x = (vProj.X * 0.5f + 0.5f) * Window.Width;
-            float y = (1f - (vProj.Y * 0.5f * aspectCorrection + 0.5f)) * Window.Height;
+            float x = (vProj.X * 0.5f + 0.5f) * WindowSettings.Width;
+            float y = (1f - (vProj.Y * 0.5f * aspectCorrection + 0.5f)) * WindowSettings.Height;
 
-            x = ClampF(x, 0f, Window.Width);
-            y = ClampF(y, 0f, Window.Height);
+            x = ClampF(x, 0f, WindowSettings.Width);
+            y = ClampF(y, 0f, WindowSettings.Height);
 
             return new Vector2D(x, y);
         }

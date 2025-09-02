@@ -1,4 +1,6 @@
-namespace RendrixEngine.Rendering
+using Avalonia.Controls;
+
+namespace RendrixEngine
 {
     public partial class ConsoleWindow : Window
     {
@@ -21,5 +23,11 @@ namespace RendrixEngine.Rendering
         public void PutChar(int x, int y, char c) => Surface.PutChar(x, y, c);
         public void PutString(int x, int y, string text) => Surface.PutString(x, y, text);
         public void EndFrame() => Surface.EndFrame();
+
+        public string Title
+        {
+            get => this.Title;
+            set => this.Title = value;
+        }
     }
 }

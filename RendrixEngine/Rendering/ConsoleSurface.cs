@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using System.Globalization;
 
-namespace RendrixEngine.Rendering
+namespace RendrixEngine
 {
     internal class ConsoleSurface : Control
     {
