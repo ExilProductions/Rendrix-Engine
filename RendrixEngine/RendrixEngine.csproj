@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="RendrixEngine.Example\**" />
-    <EmbeddedResource Remove="RendrixEngine.Example\**" />
-    <None Remove="RendrixEngine.Example\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.4" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.4" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.6.25358.103" />
