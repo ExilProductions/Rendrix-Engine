@@ -1,5 +1,6 @@
 ﻿using RendrixEngine;
 using RendrixEngine.Resources;
+using System.Numerics;
 
 
 namespace TextureExample
@@ -17,11 +18,11 @@ namespace TextureExample
             var meshRenderer = cubeObject.AddComponent<MeshRenderer>();
             meshRenderer.Mesh = mesh;
             var rotator = cubeObject.AddComponent<Rotator>();
-            rotator.direction = new Vector3D(1.2f, 1.1f, 1.4f);
+            rotator.direction = new Vector3(1.2f, 1.1f, 1.4f);
             rotator.Speed = 2.0f;
 
             var lightNode = new SceneNode("Light");
-            lightNode.Transform.Position = new Vector3D(0, 5, 0);
+            lightNode.Transform.Position = new Vector3(0, 5, 0);
             var lightComponent = lightNode.AddComponent<Light>();
             lightComponent.Type = LightType.Directional;
             lightComponent.Intensity = 1.0f;

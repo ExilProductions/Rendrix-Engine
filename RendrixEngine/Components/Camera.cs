@@ -19,8 +19,8 @@ namespace RendrixEngine
                 Main = this;
 
             AspectRatio = (float)WindowSettings.Width / WindowSettings.Height;
-            Vector3D forward = Transform.Forward;
-            Vector3D up = Transform.Up;
+            Vector3 forward = Transform.Forward;
+            Vector3 up = Transform.Up;
             ViewMatrix = Matrix4x4Extension.CreateLookAt(Transform.Position, Transform.Position + forward, up);
             ProjectionMatrix = Matrix4x4Extension.CreatePerspective(Fov, AspectRatio, NearPlane, FarPlane);
         }

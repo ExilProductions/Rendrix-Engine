@@ -77,5 +77,16 @@ namespace RendrixEngine
                 component.OnDisable();
             }
         }
+
+        // Clears all components and children recursively (used for scene switching)
+        public void Clear()
+        {
+            foreach (var c in Components)
+                c.OnDisable();
+            Components.Clear();
+            for (int i = 0; i < Children.Count; i++)
+                Children[i].Clear();
+            Children.Clear();
+        }
     }
 }

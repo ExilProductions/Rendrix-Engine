@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="RendrixEngine.MainWindow"
+        Title="Rendrix ASCII Renderer"
+        Width="800" Height="600"
+        Background="Black">
+
+	<TextBlock x:Name="RenderOutput"
+			   FontFamily="Consolas, Courier New, Monospace"
+			   FontSize="12"
+			   Foreground="White"
+			   TextWrapping="NoWrap"
+			   HorizontalAlignment="Stretch"
+			   VerticalAlignment="Stretch"
+			   IsHitTestVisible="False"/>
+</Window>

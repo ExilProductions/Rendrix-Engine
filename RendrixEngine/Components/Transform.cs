@@ -1,20 +1,20 @@
 ﻿using System.Numerics;
-using System;
+using PhysNet.Math;
 
 namespace RendrixEngine
 {
-    public class Transform
+    public class Transform : ITransform
     {
-        public Vector3D Position { get; set; }
+        public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
-        public Vector3D Scale { get; set; }
+        public Vector3 Scale { get; set; }
         public Transform? Parent { get; set; }
 
         public Transform()
         {
-            Position = new Vector3D(0, 0, 0);
+            Position = Vector3.Zero;
             Rotation = Quaternion.Identity;
-            Scale = new Vector3D(1, 1, 1);
+            Scale = Vector3.One;
         }
 
         /// <summary>
@@ -24,9 +24,9 @@ namespace RendrixEngine
         {
             get
             {
-                Matrix4x4 translation = Matrix4x4.CreateTranslation(Position.ToVector3());
+                Matrix4x4 translation = Matrix4x4.CreateTranslation(Position);
                 Matrix4x4 rotation = Matrix4x4.CreateFromQuaternion(Rotation);
-                Matrix4x4 scale = Matrix4x4.CreateScale(Scale.ToVector3());
+                Matrix4x4 scale = Matrix4x4.CreateScale(Scale);
                 return scale * rotation * translation;
             }
         }
@@ -47,54 +47,54 @@ namespace RendrixEngine
         /// <summary>
         /// Normalized forward direction vector
         /// </summary>
-        public Vector3D Forward
+        public Vector3 Forward
         {
             get
             {
                 Vector3 forward = Vector3.Transform(Vector3.UnitZ, Rotation);
-                return new Vector3D(forward.X, forward.Y, forward.Z).Normalized;
+                return Vector3.Normalize(forward);
             }
         }
 
         /// <summary>
         /// Normalized right direction vector
         /// </summary>
-        public Vector3D Right
+        public Vector3 Right
         {
             get
             {
                 Vector3 right = Vector3.Transform(Vector3.UnitX, Rotation);
-                return new Vector3D(right.X, right.Y, right.Z).Normalized;
+                return Vector3.Normalize(right);
             }
         }
 
         /// <summary>
         /// Normalized up direction vector
         /// </summary>
-        public Vector3D Up
+        public Vector3 Up
         {
             get
             {
                 Vector3 up = Vector3.Transform(Vector3.UnitY, Rotation);
-                return new Vector3D(up.X, up.Y, up.Z).Normalized;
+                return Vector3.Normalize(up);
             }
         }
 
         /// <summary>
         /// Rotate the transform around an axis by an angle (radians)
         /// </summary>
-        public void Rotate(Vector3D axis, float angle)
+        public void Rotate(Vector3 axis, float angle)
         {
-            if (axis.Normalized == new Vector3D(0, 0, 0))
+            if (axis == Vector3.Zero)
                 throw new ArgumentException("Rotation axis cannot be zero.", nameof(axis));
-            Quaternion rot = Quaternion.CreateFromAxisAngle(axis.ToVector3(), angle);
+            Quaternion rot = Quaternion.CreateFromAxisAngle(Vector3.Normalize(axis), angle);
             Rotation = Quaternion.Normalize(rot * Rotation);
         }
 
         /// <summary>
         /// Translate the transform by an offset vector
         /// </summary>
-        public void Translate(Vector3D offset)
+        public void Translate(Vector3 offset)
         {
             Position += offset;
         }
@@ -102,11 +102,38 @@ namespace RendrixEngine
         /// <summary>
         /// Set absolute scale of the transform
         /// </summary>
-        public void SetScale(Vector3D newScale)
+        public void SetScale(Vector3 newScale)
         {
             if (newScale.X <= 0 || newScale.Y <= 0 || newScale.Z <= 0)
                 throw new ArgumentException("Scale factors must be positive.", nameof(newScale));
             Scale = newScale;
+        }
+
+        public Vector3 TransformPoint(Vector3 localPoint)
+        {
+            return Vector3.Transform(localPoint, Rotation) + Position;
+        }
+
+        public Vector3 TransformDirection(Vector3 localDirection)
+        {
+            return Vector3.Transform(localDirection, Rotation);
+        }
+
+        public Vector3 InverseTransformPoint(Vector3 worldPoint)
+        {
+            var invRot = Quaternion.Conjugate(Rotation);
+            return Vector3.Transform(worldPoint - Position, invRot);
+        }
+
+        public Vector3 InverseTransformDirection(Vector3 worldDirection)
+        {
+            var invRot = Quaternion.Conjugate(Rotation);
+            return Vector3.Transform(worldDirection, invRot);
+        }
+
+        public Matrix4x4 ToMatrix()
+        {
+            return Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using RendrixEngine;
+using System.Numerics;
 
 namespace CubeExample
 {
@@ -33,23 +34,23 @@ namespace CubeExample
                 var mesh = Mesh.CreateCube(2f);
                 var camera = new SceneNode("Camera");
                 Camera cameraComponent = camera.AddComponent<Camera>();
-                camera.Transform.Position = new Vector3D(0, 0, -5);
+                camera.Transform.Position = new Vector3(0, 0, -5);
                 cameraComponent.Fov = 60f;
                 cameraComponent.NearPlane = 0.1f;
                 cameraComponent.FarPlane = 100f;
 
                 Rotator rootNodeRotator = engine.RootNode.AddComponent<Rotator>();
-                rootNodeRotator.direction = new Vector3D(0, 1, 0);
+                rootNodeRotator.direction = new Vector3(0, 1, 0);
                 rootNodeRotator.Speed = angularSpeedY;
 
                 var cube1 = new SceneNode("Cube 1");
-                cube1.Transform.Position = new Vector3D(1.5f, 0, 0);
+                cube1.Transform.Position = new Vector3(1.5f, 0, 0);
 
                 MeshRenderer cube1Renderer = cube1.AddComponent<MeshRenderer>();
                 cube1Renderer.Mesh = mesh;
 
                 Rotator rotator = cube1.AddComponent<Rotator>();
-                rotator.direction = new Vector3D(1, 0, 0);
+                rotator.direction = new Vector3(1, 0, 0);
                 rotator.Speed = angularSpeedX;
 
                 Scaler scaler1 = cube1.AddComponent<Scaler>();
@@ -58,12 +59,12 @@ namespace CubeExample
                 scaler1.pulseFrequency = pulseFrequency1;
 
                 var cube2 = new SceneNode("Cube 2");
-                cube2.Transform.Position = new Vector3D(-1.5f, 0, 0);
+                cube2.Transform.Position = new Vector3(-1.5f, 0, 0);
                 MeshRenderer cube2Renderer = cube2.AddComponent<MeshRenderer>();
                 cube2Renderer.Mesh = mesh;
 
                 Rotator rotator2 = cube2.AddComponent<Rotator>();
-                rotator2.direction = new Vector3D(0, 0, 1);
+                rotator2.direction = new Vector3(0, 0, 1);
                 rotator2.Speed = angularSpeedZ;
 
                 Scaler scaler2 = cube2.AddComponent<Scaler>();
@@ -72,12 +73,12 @@ namespace CubeExample
                 scaler2.pulseFrequency = pulseFrequency2; 
 
                 var lightNode = new SceneNode("Light");
-                lightNode.Transform.Position = new Vector3D(0, 0, 0);
+                lightNode.Transform.Position = new Vector3(0, 0, 0);
                 Light light = lightNode.AddComponent<Light>();
                 light.Type = LightType.Directional;
                 light.Intensity = 1;
                 light.Range = 5;
-                light.Direction = new Vector3D(-1, -1, -1).Normalized;
+                light.Direction = Vector3.Normalize(new Vector3(-1, -1, -1));
 
                 engine.RootNode.AddChild(cube1);
                 engine.RootNode.AddChild(cube2);

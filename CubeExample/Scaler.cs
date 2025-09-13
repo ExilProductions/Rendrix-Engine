@@ -1,4 +1,5 @@
 ﻿using RendrixEngine;
+using System.Numerics;
 
 namespace CubeExample
 {
@@ -10,7 +11,7 @@ namespace CubeExample
         public override void Update()
         {
             float scale = scaleMin + (scaleMax - scaleMin) * (float)(0.5 * (1 + Math.Sin(2 * Math.PI * pulseFrequency * Time.TimeSinceStart)));
-            Transform.Scale = new Vector3D(scale, scale, scale);
+            Transform.Scale = new Vector3(scale, scale, scale);
         }
     }
 }

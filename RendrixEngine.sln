@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubeExample", "CubeExample\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextureExample", "TextureExample\TextureExample.csproj", "{EF1773EF-1D97-382A-B3A5-6E9A6E629805}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysNet", "PhysNet\PhysNet.csproj", "{8E4005F3-85EF-07DF-7B99-4A40BB0A0F9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmptyGameProject", "EmptyGameProject\EmptyGameProject.csproj", "{B22FAE08-12D3-437E-BBF7-C6B9FDFE896C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{EF1773EF-1D97-382A-B3A5-6E9A6E629805}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF1773EF-1D97-382A-B3A5-6E9A6E629805}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF1773EF-1D97-382A-B3A5-6E9A6E629805}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E4005F3-85EF-07DF-7B99-4A40BB0A0F9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E4005F3-85EF-07DF-7B99-4A40BB0A0F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E4005F3-85EF-07DF-7B99-4A40BB0A0F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E4005F3-85EF-07DF-7B99-4A40BB0A0F9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B22FAE08-12D3-437E-BBF7-C6B9FDFE896C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B22FAE08-12D3-437E-BBF7-C6B9FDFE896C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B22FAE08-12D3-437E-BBF7-C6B9FDFE896C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B22FAE08-12D3-437E-BBF7-C6B9FDFE896C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

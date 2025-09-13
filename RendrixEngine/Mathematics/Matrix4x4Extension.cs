@@ -5,31 +5,31 @@ namespace RendrixEngine
 {
     public static class Matrix4x4Extension
     {
-        public static Vector3D Transform(this Matrix4x4 matrix, Vector3D v)
+        public static Vector3 TransformPoint(this Matrix4x4 matrix, Vector3 v)
         {
-            Vector4 result = Vector4.Transform(new Vector4(v.ToVector3(), 1), matrix);
+            Vector4 result = Vector4.Transform(new Vector4(v, 1), matrix);
             if (Math.Abs(result.W) < 1e-6f)
                 throw new InvalidOperationException("Invalid transformation: w-component is zero.");
-            return new Vector3D(result.X / result.W, result.Y / result.W, result.Z / result.W);
+            return new Vector3(result.X / result.W, result.Y / result.W, result.Z / result.W);
         }
 
-        public static Vector3D TransformNormal(this Matrix4x4 matrix, Vector3D n)
+        public static Vector3 TransformDirection(this Matrix4x4 matrix, Vector3 n)
         {
-            Vector4 result = Vector4.Transform(new Vector4(n.ToVector3(), 0f), matrix);
-            return new Vector3D(result.X, result.Y, result.Z);
+            Vector4 result = Vector4.Transform(new Vector4(n, 0f), matrix);
+            return new Vector3(result.X, result.Y, result.Z);
         }
 
-        public static Matrix4x4 CreateLookAt(Vector3D eye, Vector3D target, Vector3D up)
+        public static Matrix4x4 CreateLookAt(Vector3 eye, Vector3 target, Vector3 up)
         {
-            Vector3D zAxis = (eye - target).Normalized;
-            Vector3D xAxis = Vector3D.Cross(up, zAxis).Normalized;
-            Vector3D yAxis = Vector3D.Cross(zAxis, xAxis);
+            Vector3 zAxis = Vector3.Normalize(eye - target);
+            Vector3 xAxis = Vector3.Normalize(Vector3.Cross(up, zAxis));
+            Vector3 yAxis = Vector3.Cross(zAxis, xAxis);
 
             return new Matrix4x4(
                 xAxis.X, yAxis.X, -zAxis.X, 0,
                 xAxis.Y, yAxis.Y, -zAxis.Y, 0,
                 xAxis.Z, yAxis.Z, -zAxis.Z, 0,
-                -Vector3D.Dot(xAxis, eye), -Vector3D.Dot(yAxis, eye), Vector3D.Dot(zAxis, eye), 1
+                -Vector3.Dot(xAxis, eye), -Vector3.Dot(yAxis, eye), Vector3.Dot(zAxis, eye), 1
             );
         }
 

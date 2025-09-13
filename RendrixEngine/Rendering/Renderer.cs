@@ -41,22 +41,17 @@ namespace RendrixEngine
             if (rootNode == null)
                 throw new ArgumentNullException(nameof(rootNode));
 
-            
             Camera mainCam = Camera.Main;
             Matrix4x4 viewMatrix = mainCam.ViewMatrix;
             Matrix4x4 projectionMatrix = mainCam.ProjectionMatrix;
 
-            
             UpdateComponentsIterative(rootNode);
 
-            
             var lights = new List<Light>(16);
             CollectLightsIterative(rootNode, lights);
 
-            
             Clear();
 
-            
             var stack = new Stack<SceneNode>();
             stack.Push(rootNode);
 
@@ -64,11 +59,9 @@ namespace RendrixEngine
             {
                 SceneNode node = stack.Pop();
 
-                
                 Matrix4x4 modelMatrix = node.Transform.WorldMatrix;
                 Matrix4x4 modelViewMatrix = Matrix4x4.Multiply(modelMatrix, viewMatrix);
 
-                
                 var comps = node.Components;
                 for (int c = 0, cn = comps.Count; c < cn; c++)
                 {
@@ -78,7 +71,6 @@ namespace RendrixEngine
                         var mesh = meshRenderer.Mesh;
                         if (mesh == null) continue;
 
-                        
                         var verts = mesh.Vertices;
                         var tris = mesh.Triangles;
                         var normals = mesh.Normals;
@@ -89,53 +81,45 @@ namespace RendrixEngine
                         for (int t = 0, tn = tris.Length; t < tn; t++)
                         {
                             var tri = tris[t];
-                            
                             int i0 = tri[0];
                             int i1 = tri[1];
                             int i2 = tri[2];
 
-                            
-                            Vector3D v0_local = verts[i0];
-                            Vector3D v1_local = verts[i1];
-                            Vector3D v2_local = verts[i2];
+                            Vector3 v0_local = verts[i0];
+                            Vector3 v1_local = verts[i1];
+                            Vector3 v2_local = verts[i2];
 
-                            
-                            Vector3D v0_view = modelViewMatrix.Transform(v0_local);
-                            Vector3D v1_view = modelViewMatrix.Transform(v1_local);
-                            Vector3D v2_view = modelViewMatrix.Transform(v2_local);
+                            Vector3 v0_view = modelViewMatrix.TransformPoint(v0_local);
+                            Vector3 v1_view = modelViewMatrix.TransformPoint(v1_local);
+                            Vector3 v2_view = modelViewMatrix.TransformPoint(v2_local);
 
-                            
-                            Vector3D edge1 = v1_view - v0_view;
-                            Vector3D edge2 = v2_view - v0_view;
-                            Vector3D normal_view = Vector3D.Cross(edge1, edge2).Normalized;
-                            if (Vector3D.Dot(normal_view, v0_view) > 0f) continue;
-                            
-                            if (v0_view.Z <= 0f && v1_view.Z <= 0f && v2_view.Z <= 0f) continue;
+                            Vector3 edge1 = v1_view - v0_view;
+                            Vector3 edge2 = v2_view - v0_view;
+                            Vector3 normal_view = Vector3.Normalize(Vector3.Cross(edge1, edge2));
+                            if (Vector3.Dot(normal_view, v0_view) > 0f) continue; // backface cull
 
-                            
-                            Vector3D v0_world = modelMatrix.Transform(v0_local);
-                            Vector3D v1_world = modelMatrix.Transform(v1_local);
-                            Vector3D v2_world = modelMatrix.Transform(v2_local);
+                            if (v0_view.Z <= 0f && v1_view.Z <= 0f && v2_view.Z <= 0f) continue; // behind camera
 
-                            
-                            Vector3D n0_world = modelMatrix.TransformNormal(normals[i0]);
-                            Vector3D n1_world = modelMatrix.TransformNormal(normals[i1]);
-                            Vector3D n2_world = modelMatrix.TransformNormal(normals[i2]);
+                            Vector3 v0_world = modelMatrix.TransformPoint(v0_local);
+                            Vector3 v1_world = modelMatrix.TransformPoint(v1_local);
+                            Vector3 v2_world = modelMatrix.TransformPoint(v2_local);
 
-                            
-                            Vector2D p0 = Project(v0_view, projectionMatrix);
-                            Vector2D p1 = Project(v1_view, projectionMatrix);
-                            Vector2D p2 = Project(v2_view, projectionMatrix);
+                            Vector3 n0_world = Vector3.Normalize(modelMatrix.TransformDirection(normals[i0]));
+                            Vector3 n1_world = Vector3.Normalize(modelMatrix.TransformDirection(normals[i1]));
+                            Vector3 n2_world = Vector3.Normalize(modelMatrix.TransformDirection(normals[i2]));
+
+                            Vector2 p0 = Project(v0_view, projectionMatrix);
+                            Vector2 p1 = Project(v1_view, projectionMatrix);
+                            Vector2 p2 = Project(v2_view, projectionMatrix);
 
                             bool p0Valid = p0.X >= 0f && p0.Y >= 0f;
                             bool p1Valid = p1.X >= 0f && p1.Y >= 0f;
                             bool p2Valid = p2.X >= 0f && p2.Y >= 0f;
                             if (!p0Valid && !p1Valid && !p2Valid) continue;
 
-                            
-                            Vector2D uv0 = Vector2D.Zero;
-                            Vector2D uv1 = Vector2D.Zero;
-                            Vector2D uv2 = Vector2D.Zero;
+                            Vector2 uv0 = Vector2.Zero;
+                            Vector2 uv1 = Vector2.Zero;
+                            Vector2 uv2 = Vector2.Zero;
                             if (texture != null && hasUVs)
                             {
                                 uv0 = uvs[i0];
@@ -143,7 +127,6 @@ namespace RendrixEngine
                                 uv2 = uvs[i2];
                             }
 
-                            
                             rasterizer.RasterizeLit(
                                 p0, p1, p2,
                                 v0_view.Z, v1_view.Z, v2_view.Z,
@@ -156,14 +139,12 @@ namespace RendrixEngine
                     }
                 }
 
-                
                 var children = node.Children;
                 for (int i = children.Count - 1; i >= 0; i--)
                     stack.Push(children[i]);
             }
         }
 
-        
         private void UpdateComponentsIterative(SceneNode root)
         {
             var stack = new Stack<SceneNode>();
@@ -186,7 +167,6 @@ namespace RendrixEngine
             }
         }
 
-        
         private void CollectLightsIterative(SceneNode root, List<Light> outLights)
         {
             var stack = new Stack<SceneNode>();
@@ -209,29 +189,18 @@ namespace RendrixEngine
             }
         }
 
-        
-        
-        private Vector2D Project(Vector3D vView, Matrix4x4 projectionMatrix)
+        private Vector2 Project(Vector3 vView, Matrix4x4 projectionMatrix)
         {
-            Vector3D vProj = projectionMatrix.Transform(vView);
-
-            
-            if (vProj.Z <= 0f) return new Vector2D(-1f, -1f);
-
-            
+            Vector3 vProj = projectionMatrix.TransformPoint(vView);
+            if (vProj.Z <= 0f) return new Vector2(-1f, -1f);
             float aspectCorrection = 0.65f;
-
-            
             float x = (vProj.X * 0.5f + 0.5f) * WindowSettings.Width;
             float y = (1f - (vProj.Y * 0.5f * aspectCorrection + 0.5f)) * WindowSettings.Height;
-
             x = ClampF(x, 0f, WindowSettings.Width);
             y = ClampF(y, 0f, WindowSettings.Height);
-
-            return new Vector2D(x, y);
+            return new Vector2(x, y);
         }
 
-        
         private static float ClampF(float v, float a, float b)
         {
             if (v < a) return a;

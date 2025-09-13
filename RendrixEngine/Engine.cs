@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Avalonia.Threading;
+using RendrixEngine.Audio;
 
 namespace RendrixEngine
 {
@@ -12,9 +14,7 @@ namespace RendrixEngine
 
         public Camera Camera { get; private set; }
         public Renderer Renderer { get; private set; }
-        public SceneNode RootNode { get; } = new SceneNode("Root");
-
-        public ConsoleWindow renderWindow { get; private set; }
+        public SceneNode RootNode { get; } = new("Root");
 
         private volatile bool isRunning;
         private const string asciiChars = " ░▒▓█";
@@ -24,7 +24,14 @@ namespace RendrixEngine
         private long lastTicks;
         private double tickToMs;
 
-        public Engine(int width, int height, int targetFPS, string title, float ambientStrength, float indirectLighting = 0.2f)
+        private Thread loopThread;
+        private IScene? initialScene;
+
+        private MainWindow? mainWindow;
+        private Timer? uiTimer;
+
+        public Engine(int width, int height, int targetFPS, string title,
+                      float ambientStrength, float indirectLighting = 0.2f, IScene? initialScene = null)
         {
             if (width <= 0 || height <= 0)
                 throw new ArgumentException("Width/Height must be positive.");
@@ -33,20 +40,19 @@ namespace RendrixEngine
             Title = title ?? "Rendrix Engine";
             AmbientStrength = ambientStrength;
             IndirectLighting = indirectLighting;
+            this.initialScene = initialScene;
 
             targetFrameMs = 1000.0 / targetFPS;
 
-            renderWindow = new ConsoleWindow();
             WindowSettings.Width = width;
             WindowSettings.Height = height;
         }
 
-        public void Initialize()
+        /// <summary>
+        /// Initializes engine systems and returns the Avalonia MainWindow to display.
+        /// </summary>
+        public MainWindow Initialize()
         {
-            renderWindow.Title = Title;
-            renderWindow.SetResolution(WindowSettings.Width, WindowSettings.Height);
-            renderWindow.ResizeToResolution(cellWidth: 12, cellHeight: 18);
-
             Renderer = new Renderer(
                 screenWidth: WindowSettings.Width,
                 screenHeight: WindowSettings.Height,
@@ -55,9 +61,35 @@ namespace RendrixEngine
                 indirectLighting: IndirectLighting
             );
 
-            _ = new InputManager(renderWindow);
+            SceneManager.Initialize(this);
+            if (initialScene != null)
+                SceneManager.LoadScene(initialScene);
+            else
+                SceneManager.LoadAutoScenesOnStartup();
+
+            AudioEngine.Instance.Initialize();
+
+            // create window
+            mainWindow = new MainWindow();
+
+            // start UI timer for pushing frames
+            uiTimer = new Timer(UpdateFrame, null, 0, (int)targetFrameMs);
 
             StartLoop();
+
+            return mainWindow;
+        }
+
+        private void UpdateFrame(object? state)
+        {
+            if (Renderer == null || mainWindow == null) return;
+            string frame = Renderer.GetFrame();
+            if (string.IsNullOrEmpty(frame)) return;
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                mainWindow.RenderOutput.Text = frame;
+            });
         }
 
         private void StartLoop()
@@ -67,55 +99,45 @@ namespace RendrixEngine
             tickToMs = 1000.0 / Stopwatch.Frequency;
             isRunning = true;
 
-
-            Dispatcher.UIThread.Post(UpdateLoop, DispatcherPriority.Render);
+            loopThread = new Thread(GameLoop) { IsBackground = true };
+            loopThread.Start();
         }
 
-        private void UpdateLoop()
+        private void GameLoop()
         {
-            if (!isRunning) return;
-
-
-            long frameStartTicks = stopwatch.ElapsedTicks;
-            double rawDelta = (frameStartTicks - lastTicks) * tickToMs / 1000.0;
-            lastTicks = frameStartTicks;
-
-
-            Time.UnscaledDeltaTime = (float)rawDelta;
-            Time.DeltaTime = Time.UnscaledDeltaTime * Time.TimeScale;
-            Time.RealtimeSinceStartup = (float)stopwatch.Elapsed.TotalSeconds;
-            Time.TimeSinceStart += Time.DeltaTime;
-            Time.FrameCount++;
-
-
-            Renderer.Render(RootNode);
-            string frame = Renderer.GetFrame();
-
-            renderWindow.Clear();
-            int index = 0;
-            for (int y = 0; y < renderWindow.Surface.ResolutionRows; y++)
+            while (isRunning)
             {
-                for (int x = 0; x < renderWindow.Surface.ResolutionColumns; x++)
-                {
-                    if (index >= frame.Length) break;
-                    renderWindow.PutChar(x, y, frame[index]);
-                    index++;
-                }
+                long frameStartTicks = stopwatch.ElapsedTicks;
+                double rawDelta = (frameStartTicks - lastTicks) * tickToMs / 1000.0;
+                lastTicks = frameStartTicks;
+
+                Time.UnscaledDeltaTime = (float)rawDelta;
+                Time.DeltaTime = Time.UnscaledDeltaTime * Time.TimeScale;
+                Time.RealtimeSinceStartup = (float)stopwatch.Elapsed.TotalSeconds;
+                Time.TimeSinceStart += Time.DeltaTime;
+                Time.FrameCount++;
+
+                AudioEngine.Instance.Update();
+                Renderer.Render(RootNode);
+
+                double frameTime = (stopwatch.ElapsedTicks - frameStartTicks) * tickToMs;
+                int sleepTime = (int)(targetFrameMs - frameTime);
+                if (sleepTime > 0)
+                    Thread.Sleep(sleepTime);
             }
-            renderWindow.EndFrame();
-
-
-            Dispatcher.UIThread.Post(UpdateLoop, DispatcherPriority.Render);
         }
 
         public void Stop()
         {
             isRunning = false;
+            loopThread?.Join();
         }
 
         public void Dispose()
         {
             Stop();
+            uiTimer?.Dispose();
+            AudioEngine.Instance.Dispose();
         }
     }
 }

@@ -1,26 +1,23 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Linq;
-
+﻿using System.Numerics;
 namespace RendrixEngine
 {
     public class Mesh
     {
-        public List<Vector3D> Vertices { get; }
-        public List<Vector3D> Normals { get; }
-        public List<Vector2D> UVs { get; }
+        public List<Vector3> Vertices { get; }
+        public List<Vector3> Normals { get; }
+        public List<Vector2> UVs { get; }
         public Texture? Texture { get; set; }
         public int[][] Triangles { get; }
 
         public Mesh()
         {
-            Vertices = new List<Vector3D>();
-            Normals = new List<Vector3D>();
-            UVs = new List<Vector2D>();
+            Vertices = new List<Vector3>();
+            Normals = new List<Vector3>();
+            UVs = new List<Vector2>();
             Triangles = Array.Empty<int[]>();
         }
 
-        public Mesh(List<Vector3D> vertices, List<Vector3D> normals, List<Vector2D> uvs, int[][] triangles, Texture? texture = null)
+        public Mesh(List<Vector3> vertices, List<Vector3> normals, List<Vector2> uvs, int[][] triangles, Texture? texture = null)
         {
             if (vertices == null || vertices.Count == 0)
                 throw new ArgumentException("Vertices array cannot be null or empty.", nameof(vertices));
@@ -65,39 +62,39 @@ namespace RendrixEngine
         {
             float s = size / 2.0f;
 
-            var vertices = new List<Vector3D>
+            var vertices = new List<Vector3>
             {
                 // Front face
-                new Vector3D(-s, -s, -s), new Vector3D(s, -s, -s), new Vector3D(s, s, -s), new Vector3D(-s, s, -s),
+                new Vector3(-s, -s, -s), new Vector3(s, -s, -s), new Vector3(s, s, -s), new Vector3(-s, s, -s),
                 // Back face
-                new Vector3D(s, -s, s), new Vector3D(-s, -s, s), new Vector3D(-s, s, s), new Vector3D(s, s, s),
+                new Vector3(s, -s, s), new Vector3(-s, -s, s), new Vector3(-s, s, s), new Vector3(s, s, s),
                 // Top face
-                new Vector3D(-s, s, -s), new Vector3D(s, s, -s), new Vector3D(s, s, s), new Vector3D(-s, s, s),
+                new Vector3(-s, s, -s), new Vector3(s, s, -s), new Vector3(s, s, s), new Vector3(-s, s, s),
                 // Bottom face
-                new Vector3D(-s, -s, s), new Vector3D(s, -s, s), new Vector3D(s, -s, -s), new Vector3D(-s, -s, -s),
+                new Vector3(-s, -s, s), new Vector3(s, -s, s), new Vector3(s, -s, -s), new Vector3(-s, -s, -s),
                 // Right face
-                new Vector3D(s, -s, -s), new Vector3D(s, -s, s), new Vector3D(s, s, s), new Vector3D(s, s, -s),
+                new Vector3(s, -s, -s), new Vector3(s, -s, s), new Vector3(s, s, s), new Vector3(s, s, -s),
                 // Left face
-                new Vector3D(-s, -s, s), new Vector3D(-s, -s, -s), new Vector3D(-s, s, -s), new Vector3D(-s, s, s)
+                new Vector3(-s, -s, s), new Vector3(-s, -s, -s), new Vector3(-s, s, -s), new Vector3(-s, s, s)
             };
 
-            var normals = new List<Vector3D>
+            var normals = new List<Vector3>
             {
-                Vector3D.Back, Vector3D.Back, Vector3D.Back, Vector3D.Back,
-                Vector3D.Forward, Vector3D.Forward, Vector3D.Forward, Vector3D.Forward,
-                Vector3D.Up, Vector3D.Up, Vector3D.Up, Vector3D.Up,
-                Vector3D.Down, Vector3D.Down, Vector3D.Down, Vector3D.Down,
-                Vector3D.Right, Vector3D.Right, Vector3D.Right, Vector3D.Right,
-                Vector3D.Left, Vector3D.Left, Vector3D.Left, Vector3D.Left
+                Vector3.UnitZ * -1, Vector3.UnitZ * -1, Vector3.UnitZ * -1, Vector3.UnitZ * -1, // Back
+                Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitZ,                   // Forward
+                Vector3.UnitY, Vector3.UnitY, Vector3.UnitY, Vector3.UnitY,                   // Up
+                Vector3.UnitY * -1, Vector3.UnitY * -1, Vector3.UnitY * -1, Vector3.UnitY * -1, // Down
+                Vector3.UnitX, Vector3.UnitX, Vector3.UnitX, Vector3.UnitX,                   // Right
+                Vector3.UnitX * -1, Vector3.UnitX * -1, Vector3.UnitX * -1, Vector3.UnitX * -1  // Left
             };
 
-            var uvs = new List<Vector2D>();
+            var uvs = new List<Vector2>();
             for (int i = 0; i < 6; i++)
             {
-                uvs.Add(new Vector2D(0, 1));
-                uvs.Add(new Vector2D(1, 1));
-                uvs.Add(new Vector2D(1, 0));
-                uvs.Add(new Vector2D(0, 0));
+                uvs.Add(new Vector2(0, 1));
+                uvs.Add(new Vector2(1, 1));
+                uvs.Add(new Vector2(1, 0));
+                uvs.Add(new Vector2(0, 0));
             }
 
             var triangles = new int[][]
@@ -120,9 +117,9 @@ namespace RendrixEngine
             if (longitudeBands < 3)
                 throw new ArgumentOutOfRangeException(nameof(longitudeBands), "Longitude bands must be >= 3.");
 
-            var vertices = new List<Vector3D>();
-            var normals = new List<Vector3D>();
-            var uvs = new List<Vector2D>();
+            var vertices = new List<Vector3>();
+            var normals = new List<Vector3>();
+            var uvs = new List<Vector2>();
             var triangles = new List<int[]>();
 
             for (int lat = 0; lat <= latitudeBands; lat++)
@@ -141,10 +138,11 @@ namespace RendrixEngine
                     float y = (float)(cosTheta);
                     float z = (float)(sinPhi * sinTheta);
 
-                    var pos = new Vector3D(x * radius, y * radius, z * radius);
+                    var pos = new Vector3(x * radius, y * radius, z * radius);
                     vertices.Add(pos);
-                    normals.Add(new Vector3D(x, y, z).Normalized);
-                    uvs.Add(new Vector2D((float)lon / longitudeBands, 1.0f - (float)lat / latitudeBands));
+
+                    normals.Add(Vector3.Normalize(new Vector3(x, y, z)));
+                    uvs.Add(new Vector2((float)lon / longitudeBands, 1.0f - (float)lat / latitudeBands));
                 }
             }
 

@@ -12,13 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assets\Textures\checker_texture.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="App.axaml.cs">
       <DependentUpon>App.axaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Scripts\" />
+    <Folder Include="Scenes\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using RendrixEngine;
+using System.Numerics;
 
 namespace InputExample
 {
@@ -24,7 +25,7 @@ namespace InputExample
             var light = new SceneNode("Sun");
             var lightComponent = light.AddComponent<Light>();
             lightComponent.Intensity = 1.0f;
-            lightComponent.Direction = new Vector3D(0, 45, 0);
+            lightComponent.Direction = new Vector3(0, 45, 0);
 
             engine.RootNode.AddChild(cube);
             engine.RootNode.AddChild(light);

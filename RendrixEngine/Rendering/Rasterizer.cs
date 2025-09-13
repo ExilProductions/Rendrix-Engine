@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Numerics;
 
 namespace RendrixEngine
 {
@@ -58,11 +57,11 @@ namespace RendrixEngine
 
 
         public void RasterizeLit(
-            Vector2D p0, Vector2D p1, Vector2D p2,
+            Vector2 p0, Vector2 p1, Vector2 p2,
             float z0, float z1, float z2,
-            Vector3D worldPos0, Vector3D worldPos1, Vector3D worldPos2,
-            Vector3D normal0, Vector3D normal1, Vector3D normal2,
-            Vector2D uv0, Vector2D uv1, Vector2D uv2,
+            Vector3 worldPos0, Vector3 worldPos1, Vector3 worldPos2,
+            Vector3 normal0, Vector3 normal1, Vector3 normal2,
+            Vector2 uv0, Vector2 uv1, Vector2 uv2,
             Texture? texture,
             List<Light> lights, float ambientStrength, string asciiChars)
         {
@@ -137,8 +136,8 @@ namespace RendrixEngine
                             localZ[zi] = z;
 
 
-                            Vector3D worldPos = worldPos0 * w0 + worldPos1 * w1 + worldPos2 * w2;
-                            Vector3D normal = (normal0 * w0 + normal1 * w1 + normal2 * w2).Normalized;
+                            Vector3 worldPos = worldPos0 * w0 + worldPos1 * w1 + worldPos2 * w2;
+                            Vector3 normal = Vector3.Normalize((normal0 * w0 + normal1 * w1 + normal2 * w2));
 
 
                             float lightingBrightness = CalculateLighting(worldPos, normal, lights, ambientStrength, prevAvg, localIndirect);
@@ -146,7 +145,7 @@ namespace RendrixEngine
                             float finalBrightness;
                             if (hasTexture)
                             {
-                                Vector2D uv = uv0 * w0 + uv1 * w1 + uv2 * w2;
+                                Vector2 uv = uv0 * w0 + uv1 * w1 + uv2 * w2;
                                 float u_clamped = ClampF(uv.X, 0f, 1f);
                                 float v_clamped = ClampF(uv.Y, 0f, 1f);
                                 int tx = (int)(u_clamped * (texW - 1));
@@ -175,7 +174,7 @@ namespace RendrixEngine
         }
 
 
-        private float CalculateLighting(Vector3D worldPos, Vector3D normal, List<Light> lights, float ambientStrength, float previousAvg, float indirectFactorLocal)
+        private float CalculateLighting(Vector3 worldPos, Vector3 normal, List<Light> lights, float ambientStrength, float previousAvg, float indirectFactorLocal)
         {
             float brightness = ambientStrength;
 
@@ -185,17 +184,17 @@ namespace RendrixEngine
                 float diffuse = 0f;
                 if (light.Type == LightType.Directional)
                 {
-                    diffuse = Math.Max(0f, Vector3D.Dot(normal, light.Direction)) * light.Intensity;
+                    diffuse = Math.Max(0f, Vector3.Dot(normal, light.Direction)) * light.Intensity;
                 }
                 else
                 {
-                    Vector3D lightDir = light.Transform.Position - worldPos;
-                    float distance = lightDir.Length;
+                    Vector3 lightDir = light.Transform.Position - worldPos;
+                    float distance = lightDir.Length();
                     if (distance <= light.Range)
                     {
-                        lightDir = lightDir.Normalized;
+                        lightDir = Vector3.Normalize(lightDir);
                         float falloff = light.Intensity / (distance * distance + FalloffConstant);
-                        diffuse = Math.Max(0f, Vector3D.Dot(normal, lightDir)) * falloff;
+                        diffuse = Math.Max(0f, Vector3.Dot(normal, lightDir)) * falloff;
                     }
                 }
 

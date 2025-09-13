@@ -11,4 +11,10 @@
     <ProjectReference Include="..\RendrixEngine\RendrixEngine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="App.axaml.cs">
+      <DependentUpon>App.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>
